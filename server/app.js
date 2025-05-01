@@ -3,13 +3,13 @@ const { config } = require('dotenv');
 const express = require('express');
 const app = express();
 const connectDB = require('./config/db/connect.js');
-// const userRouter = require('./routers/UserRouter.js');
+const authRoutes = require('./routes/authRoute.js');
 const cors = require('cors');
 app.use(cors());
 
 app.use(express.json());
 
-// app.use('/app/user', userRouter);
+app.use('/api/auth', authRoutes);
 
 
 connectDB();
