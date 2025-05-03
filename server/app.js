@@ -4,12 +4,16 @@ const express = require('express');
 const app = express();
 const connectDB = require('./config/db/connect.js');
 const authRoutes = require('./routes/authRoute.js');
+const taskRoute = require('./routes/taskRoute.js');
+const notificationRoute = require('./routes/notificationRoute.js');
 const cors = require('cors');
 app.use(cors());
 
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoute);
+app.use('/api/notification', notificationRoute);
 
 
 connectDB();
