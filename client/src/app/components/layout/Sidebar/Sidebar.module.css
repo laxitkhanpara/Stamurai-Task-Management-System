@@ -1,0 +1,121 @@
+/* components/layout/Sidebar.module.css */
+.sidebar {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  height: calc(100vh - 64px);
+  background-color: var(--surface-color);
+  border-right: 1px solid var(--border-color);
+  transition: width 0.3s ease;
+  z-index: 90;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.open {
+  width: 240px;
+}
+
+.closed {
+  width: 64px;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebarTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.toggleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.toggleButton:hover {
+  background-color: var(--bg-color);
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.menuItem:hover {
+  background-color: var(--bg-color);
+}
+
+.active {
+  background-color: rgba(79, 70, 229, 0.08);
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+}
+
+.text {
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 80;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .open {
+    transform: translateX(0);
+    width: 240px;
+  }
+  
+  .closed {
+    transform: translateX(-100%);
+    width: 240px;
+  }
+  
+  .overlay {
+    display: block;
+  }
+}

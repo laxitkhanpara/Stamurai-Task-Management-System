@@ -20,9 +20,9 @@ exports.register = async (req, res) => {
     // Check if user exists
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'User already exists with that email' 
+      return res.status(400).json({
+        success: false,
+        error: 'User already exists with that email'
       });
     }
 
@@ -50,31 +50,33 @@ exports.register = async (req, res) => {
  */
 exports.login = async (req, res) => {
   try {
+    console.log("Login request body:", req.body);
+
     const { email, password } = req.body;
 
     // Validate email & password
     if (!email || !password) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Please provide an email and password' 
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide an email and password'
       });
     }
 
     // Check for user
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'Invalid credentials' 
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
       });
     }
 
     // Check if password matches
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'Invalid credentials' 
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
       });
     }
 
@@ -97,7 +99,7 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    
+
     res.status(200).json({
       success: true,
       data: user

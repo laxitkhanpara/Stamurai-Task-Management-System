@@ -1,20 +1,34 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from '../Auth.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { register } from '../../../store/thunks/authThunk';
+import { toast } from 'react-toastify';
 
 export default function Register() {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  
+  // Get auth state from Redux
+  const { loading, error } = useSelector((state) => state.auth);
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
-  const router = useRouter();
+  const [validationErrors, setValidationErrors] = useState({});
+  
+  // Monitor Redux state changes
+  useEffect(() => {
+    // Show error toast if there's an error from Redux
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,9 +37,9 @@ export default function Register() {
       [name]: value,
     });
     // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors({
-        ...errors,
+    if (validationErrors[name]) {
+      setValidationErrors({
+        ...validationErrors,
         [name]: '',
       });
     }
@@ -36,68 +50,51 @@ export default function Register() {
     if (!formData.name) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
-    setErrors(newErrors);
+    setValidationErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setApiError('');
     
     if (!validateForm()) {
+      toast.error("Please fix the form errors");
       return;
     }
     
-    setIsLoading(true);
     try {
-      // In a real app, this would be your API endpoint
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+      // Dispatch registration action and handle response
+      const resultAction = await dispatch(register(formData)).unwrap();
       
-      const data = await response.json();
+      // If successful, show success toast and redirect
+      toast.success("Registration successful! Redirecting to dashboard...");
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
+      // Wait a moment before redirecting to allow the user to see the success message
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1500);
       
-      if (data.success) {
-        // Redirect to login page
-        router.push('/auth/login?registered=true');
-      } else {
-        throw new Error('Invalid response from server');
-      }
     } catch (err) {
-      setApiError(err.message || 'Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
+      // Error handling is now done through the useEffect watching for Redux state changes
+      console.error("Registration failed:", err);
     }
   };
 
@@ -108,13 +105,7 @@ export default function Register() {
           <h1 className={styles.authTitle}>Create Account</h1>
           <p className={styles.authSubtitle}>Sign up to get started</p>
         </div>
-        
-        {apiError && (
-          <div className={styles.alertError}>
-            {apiError}
-          </div>
-        )}
-        
+
         <form onSubmit={handleSubmit} className={styles.authForm}>
           <div className={styles.formGroup}>
             <label htmlFor="name" className={styles.formLabel}>Full Name</label>
@@ -124,13 +115,13 @@ export default function Register() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={`${styles.formInput} ${errors.name ? styles.inputError : ''}`}
+              className={`${styles.formInput} ${validationErrors.name ? styles.inputError : ''}`}
               placeholder="John Doe"
-              disabled={isLoading}
+              disabled={loading}
             />
-            {errors.name && <p className={styles.formError}>{errors.name}</p>}
+            {validationErrors.name && <p className={styles.formError}>{validationErrors.name}</p>}
           </div>
-          
+
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.formLabel}>Email</label>
             <input
@@ -139,13 +130,13 @@ export default function Register() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`${styles.formInput} ${errors.email ? styles.inputError : ''}`}
+              className={`${styles.formInput} ${validationErrors.email ? styles.inputError : ''}`}
               placeholder="your@email.com"
-              disabled={isLoading}
+              disabled={loading}
             />
-            {errors.email && <p className={styles.formError}>{errors.email}</p>}
+            {validationErrors.email && <p className={styles.formError}>{validationErrors.email}</p>}
           </div>
-          
+
           <div className={styles.formGroup}>
             <label htmlFor="password" className={styles.formLabel}>Password</label>
             <input
@@ -154,13 +145,13 @@ export default function Register() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`${styles.formInput} ${errors.password ? styles.inputError : ''}`}
+              className={`${styles.formInput} ${validationErrors.password ? styles.inputError : ''}`}
               placeholder="••••••••"
-              disabled={isLoading}
+              disabled={loading}
             />
-            {errors.password && <p className={styles.formError}>{errors.password}</p>}
+            {validationErrors.password && <p className={styles.formError}>{validationErrors.password}</p>}
           </div>
-          
+
           <div className={styles.formGroup}>
             <label htmlFor="confirmPassword" className={styles.formLabel}>Confirm Password</label>
             <input
@@ -169,22 +160,22 @@ export default function Register() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className={`${styles.formInput} ${errors.confirmPassword ? styles.inputError : ''}`}
+              className={`${styles.formInput} ${validationErrors.confirmPassword ? styles.inputError : ''}`}
               placeholder="••••••••"
-              disabled={isLoading}
+              disabled={loading}
             />
-            {errors.confirmPassword && <p className={styles.formError}>{errors.confirmPassword}</p>}
+            {validationErrors.confirmPassword && <p className={styles.formError}>{validationErrors.confirmPassword}</p>}
           </div>
-          
+
           <button
             type="submit"
             className={styles.authButton}
-            disabled={isLoading}
+            disabled={loading}
           >
-            {isLoading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
-        
+
         <div className={styles.authFooter}>
           <p>
             Already have an account?{' '}

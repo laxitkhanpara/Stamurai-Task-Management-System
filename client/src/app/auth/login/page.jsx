@@ -3,8 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from '../Auth.module.css';
+import { useDispatch } from 'react-redux';
+import { login } from '../../../store/thunks/authThunk';
 
 export default function Login() {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -39,45 +42,35 @@ export default function Login() {
     if (!formData.password) {
       newErrors.password = 'Password is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
     setApiError('');
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsLoading(true);
     try {
-      // In a real app, this would be your API endpoint
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      console.log("credential", formData);
+      e.preventDefault()
+
+      console.log("formData", formData);
+
+      dispatch(login(formData)).then((res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          router.push('/admin');
+        }
       });
-      
-      const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
-      }
-      
-      if (data.success && data.token && data.user) {
-        // Store token and user data in localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Redirect to dashboard
-        router.push('/dashboard');
-      } else {
-        throw new Error('Invalid response from server');
       }
     } catch (err) {
       setApiError(err.message || 'Something went wrong. Please try again.');
@@ -93,13 +86,13 @@ export default function Login() {
           <h1 className={styles.authTitle}>Welcome Back</h1>
           <p className={styles.authSubtitle}>Sign in to your account</p>
         </div>
-        
+
         {apiError && (
           <div className={styles.alertError}>
             {apiError}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit} className={styles.authForm}>
           <div className={styles.formGroup}>
             <label htmlFor="email" className={styles.formLabel}>Email</label>
@@ -115,7 +108,7 @@ export default function Login() {
             />
             {errors.email && <p className={styles.formError}>{errors.email}</p>}
           </div>
-          
+
           <div className={styles.formGroup}>
             <div className={styles.formLabelWithLink}>
               <label htmlFor="password" className={styles.formLabel}>Password</label>
@@ -135,7 +128,7 @@ export default function Login() {
             />
             {errors.password && <p className={styles.formError}>{errors.password}</p>}
           </div>
-          
+
           <button
             type="submit"
             className={styles.authButton}
@@ -144,7 +137,7 @@ export default function Login() {
             {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-        
+
         <div className={styles.authFooter}>
           <p>
             Don't have an account?{' '}

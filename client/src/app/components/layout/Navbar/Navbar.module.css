@@ -1,0 +1,263 @@
+/* components/layout/Navbar.module.css */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+  padding: 0 1.5rem;
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 100;
+}
+
+.left, .right {
+  display: flex;
+  align-items: center;
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  margin-right: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.menuButton:hover {
+  background-color: var(--bg-color);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  margin-left: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  position: relative;
+}
+
+.iconButton:hover {
+  background-color: var(--bg-color);
+}
+
+.notificationContainer, .profileContainer {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background-color: var(--error-color);
+  color: #fff;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  padding: 0 4px;
+}
+
+.profileButton {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  margin-left: 1rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.profileButton:hover {
+  background-color: var(--bg-color);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.userName {
+  margin-left: 8px;
+  font-weight: 500;
+  display: block;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 280px;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.dropdownTitle {
+  padding: 12px 16px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.notificationList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notification {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+}
+
+.notification:last-child {
+  border-bottom: none;
+}
+
+.notification p {
+  margin: 0 0 4px;
+  font-size: 0.875rem;
+}
+
+.unread {
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.unread:before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+}
+
+.time {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.noNotifications {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.dropdownFooter {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.textButton {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.textButton:hover {
+  text-decoration: underline;
+}
+
+.profileInfo {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profileName {
+  margin: 0;
+  font-weight: 600;
+}
+
+.profileEmail, .profileRole {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.menuList {
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+}
+
+.menuItem {
+  display: block;
+  padding: 8px 16px;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+}
+
+.menuItem:hover {
+  background-color: var(--bg-color);
+}
+
+@media (max-width: 768px) {
+  .userName {
+    display: none;
+  }
+  
+  .dropdown {
+    right: -16px;
+  }
+}

@@ -1,0 +1,35 @@
+/* components/layout/Layout.module.css */
+.layout {
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.container {
+  display: flex;
+  min-height: calc(100vh - 64px);
+}
+
+.main {
+  flex-grow: 1;
+  padding: 1.5rem;
+  margin-left: 240px;
+  transition: margin-left 0.3s ease;
+}
+
+.mainExpanded {
+  margin-left: 64px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  
+  .mainExpanded {
+    margin-left: 0;
+  }
+}
