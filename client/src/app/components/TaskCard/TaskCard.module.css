@@ -1,0 +1,250 @@
+/* components/TaskCard/TaskCard.module.css */
+.card {
+  background-color: var(--surface-color);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  padding: 1.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.priority {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+}
+
+.priorityHigh {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+.priorityMedium {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.priorityLow {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton, .deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  color: var(--text-secondary);
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.editButton:hover {
+  color: var(--primary-color);
+  background-color: rgba(79, 70, 229, 0.1);
+}
+
+.deleteButton:hover {
+  color: var(--error-color);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.assignee, .dueDate {
+  display: flex;
+  align-items: center;
+}
+
+.label {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+  min-width: 5rem;
+}
+
+.value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.overdue {
+  color: var(--error-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.overdueTag {
+  font-size: 0.7rem;
+  background-color: var(--error-color);
+  color: white;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+}
+
+.statusContainer {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.statusLabel {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.statusSelect {
+  flex-grow: 1;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.statusSelect:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.statusTodo {
+  border-left: 3px solid var(--text-secondary);
+}
+
+.statusInProgress {
+  border-left: 3px solid var(--primary-color);
+}
+
+.statusCompleted {
+  border-left: 3px solid var(--success-color);
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modalContent {
+  background-color: var(--surface-color);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.closeButton:hover {
+  color: var(--error-color);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancelButton, .confirmButton {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.cancelButton {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.cancelButton:hover {
+  background-color: var(--bg-color);
+}
+
+.confirmButton {
+  background-color: var(--error-color);
+  color: white;
+  border: none;
+}
+
+.confirmButton:hover {
+  opacity: 0.9;
+}
