@@ -7,7 +7,7 @@ export const createTask = async (taskData) => {
   return response;
 }
 export const deleteTask = async (id) => {
-  const response = await api.delete(`${API_ENDPOINTS.DELETE_TASK}/${id}`);
+  const response = await api.delete(`${API_ENDPOINTS.DELETE_TASK}${id}`);
   return response;
 }
 export const getDashboardStats = async () => {

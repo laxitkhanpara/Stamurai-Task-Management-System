@@ -25,6 +25,4 @@ connectDB();
 const server = app.listen(process.env.PORT, (req, res) => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
-server.setTimeout(90000, () => {
-  console.log('Server timeout after 10 seconds');
-});
+server.setTimeout(90000); 

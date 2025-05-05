@@ -4,7 +4,7 @@
 
 // Request status enum for tracking API call states
 
-export const API_BASE_URL = "http://localhost:5000/api/";
+export const API_BASE_URL = "https://stamurai-task-management-system-w5a1.onrender.com/api/";
 
 export const AUTH_ENDPOINTS = {
   LOGIN: `/auth/login`,
@@ -34,7 +34,7 @@ export const API_ENDPOINTS = {
   GET_TASK:'/tasks/:id',
   CREATE_TASK:'/tasks',
   UPDATE_TASK:'/tasks/',
-  DELETE_TASK: '/tasks/:id',
+  DELETE_TASK: '/tasks/',
   GET_USER_TASKS:'/tasks/user/',
   UPDATE_TASK_STATUS:'/tasks/',
   GETDASHBOARD_STATS:'/tasks/dashboard',

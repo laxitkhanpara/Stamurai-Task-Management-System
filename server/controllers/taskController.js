@@ -295,7 +295,7 @@ exports.deleteTask = async (req, res) => {
     await Notification.deleteMany({ task: task._id });
 
     // Delete task
-    await task.remove();
+    await task.deleteOne();
 
     res.status(200).json({
       success: true,
