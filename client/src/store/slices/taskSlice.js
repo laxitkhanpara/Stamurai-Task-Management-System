@@ -148,6 +148,8 @@ const taskSlice = createSlice({
       .addCase(fetchDashboardStats.fulfilled, (state, action) => {
         state.isLoading = false;
         state.dashboardStats = action.payload;
+        console.log("state.dashboardStats", state.dashboardStats);
+        
       })
       .addCase(fetchDashboardStats.rejected, (state, action) => {
         state.isLoading = false;

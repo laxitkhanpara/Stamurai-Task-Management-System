@@ -36,7 +36,10 @@ export const fetchTask = createAsyncThunk('tasks/fetchTask', async (taskId, thun
 
 export const fetchDashboardStats = createAsyncThunk('tasks/fetchDashboardStats', async (thunkApi) => {
   try {
+    console.log("12------");
+    
     const response = await getDashboardStats();
+    console.log('response', response);
     return response.data.content;
   }
   catch (error) {

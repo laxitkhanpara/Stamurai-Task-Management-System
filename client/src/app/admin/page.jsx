@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {fetchDashboardStats } from '../../store/thunks/taskThunk';
+import { fetchDashboardStats } from '../../store/thunks/taskThunk';
 
 import {
   ChevronUp,
@@ -18,7 +18,39 @@ import styles from './Dashboard.module.css';
 
 export default function TaskDashboard() {
   const dispatch = useDispatch();
-  const [data, setData] = useState({
+  const { dashboardStats, isLoading, error } = useSelector((state) => state.task);
+
+  useEffect(() => {
+    // Fetch dashboard stats when component mounts
+    console.log('Fetching dashboard stats...');
+    console.log(dashboardStats);
+      dispatch(fetchDashboardStats());
+
+  }, [dispatch, dashboardStats]);
+
+  // For debugging
+  useEffect(() => {
+    console.log('Dashboard stats from Redux:', dashboardStats);
+  }, [dashboardStats]);
+
+  const formatLabel = (label) => {
+    return label
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  if (isLoading) {
+    return <div className={styles.loadingContainer}>Loading dashboard data...</div>;
+  }
+
+  if (error) {
+    return <div className={styles.errorContainer}>{error}</div>;
+  }
+
+  // Ensure dashboardStats exists and has all required properties
+  // Check if dashboardStats exists and contains the expected data structure
+  const data = dashboardStats && dashboardStats.data ? dashboardStats.data : {
     totalTasks: 0,
     statusCounts: {
       "todo": 0,
@@ -33,29 +65,13 @@ export default function TaskDashboard() {
     },
     overdueTasks: 0,
     dueToday: 0
-  });
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    dispatch(fetchDashboardStats());
-  }, [dispatch]);
-
-  const formatLabel = (label) => {
-    return label
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
   };
 
-  if (loading) {
-    return <div className={styles.loadingContainer}>Loading dashboard data...</div>;
-  }
-
-  if (error) {
-    return <div className={styles.errorContainer}>{error}</div>;
-  }
+  // Guard against division by zero
+  const calculatePercentage = (count, total) => {
+    if (total === 0) return 0;
+    return Math.round((count / total) * 100);
+  };
 
   return (
     <div className={styles.dashboardContainer}>
@@ -103,13 +119,13 @@ export default function TaskDashboard() {
                   <div className={styles.chartLabelRow}>
                     <span className={styles.chartLabel}>{formatLabel(status)}</span>
                     <span className={styles.chartValue}>
-                      {count} ({Math.round((count / data.totalTasks) * 100)}%)
+                      {count} ({calculatePercentage(count, data.totalTasks)}%)
                     </span>
                   </div>
                   <div className={styles.progressBarBg}>
                     <div
                       className={`${styles.progressBar} ${styles[`${status}Bar`]}`}
-                      style={{ width: `${(count / data.totalTasks) * 100}%` }}
+                      style={{ width: `${calculatePercentage(count, data.totalTasks)}%` }}
                     ></div>
                   </div>
                 </div>
@@ -126,13 +142,13 @@ export default function TaskDashboard() {
                   <div className={styles.chartLabelRow}>
                     <span className={styles.chartLabel}>{formatLabel(priority)}</span>
                     <span className={styles.chartValue}>
-                      {count} ({Math.round((count / data.totalTasks) * 100)}%)
+                      {count} ({calculatePercentage(count, data.totalTasks)}%)
                     </span>
                   </div>
                   <div className={styles.progressBarBg}>
                     <div
                       className={`${styles.progressBar} ${styles[`${priority}PriorityBar`]}`}
-                      style={{ width: `${(count / data.totalTasks) * 100}%` }}
+                      style={{ width: `${calculatePercentage(count, data.totalTasks)}%` }}
                     ></div>
                   </div>
                 </div>
