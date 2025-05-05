@@ -2,6 +2,8 @@ const Task = require('../models/TaskSchema');
 const User = require('../models/UserSchema');
 const Notification = require('../models/NotificationSchema');
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
+
 
 // @desc    Create new task
 // @route   POST /api/tasks
@@ -536,8 +538,8 @@ exports.getDashboardStats = async (req, res) => {
       {
         $match: {
           $or: [
-            { createdBy: mongoose.Types.ObjectId(req.user.id) },
-            { assignedTo: mongoose.Types.ObjectId(req.user.id) }
+            { createdBy:new  mongoose.Types.ObjectId(req.user.id) },
+            { assignedTo:new  mongoose.Types.ObjectId(req.user.id) }
           ]
         }
       },
@@ -554,8 +556,8 @@ exports.getDashboardStats = async (req, res) => {
       {
         $match: {
           $or: [
-            { createdBy: mongoose.Types.ObjectId(req.user.id) },
-            { assignedTo: mongoose.Types.ObjectId(req.user.id) }
+            { createdBy:new  mongoose.Types.ObjectId(req.user.id) },
+            { assignedTo:new  mongoose.Types.ObjectId(req.user.id) }
           ]
         }
       },

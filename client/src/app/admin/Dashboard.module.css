@@ -1,0 +1,316 @@
+/* Dashboard.module.css */
+
+.dashboardContainer {
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboardContent {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.subtitle {
+  color: #64748b;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.statusCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+/* Card Styles */
+.statCard, .chartCard, .statusCard {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.statCard {
+  padding: 1.25rem;
+}
+
+.statCardContent {
+  display: flex;
+  align-items: center;
+}
+
+.chartCard {
+  padding: 1.5rem;
+}
+
+.statusCard {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chart Styles */
+.chartTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.chartContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chartLabelRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.chartLabel, .chartValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.progressBarBg {
+  width: 100%;
+  height: 0.5rem;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+/* Status Card Styles */
+.statusIcon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.statusTitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1e293b;
+  margin: 0;
+}
+
+.statusCount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* Stat Card Styles */
+.statInfo {
+  margin-left: 1rem;
+}
+
+.statTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* Icon Containers */
+.blueCard, .greenCard, .redCard, .yellowCard {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blueCard {
+  background-color: #dbeafe;
+}
+
+.greenCard {
+  background-color: #dcfce7;
+}
+
+.redCard {
+  background-color: #fee2e2;
+}
+
+.yellowCard {
+  background-color: #fef3c7;
+}
+
+.blueCardIcon {
+  background-color: #dbeafe;
+}
+
+.greenCardIcon {
+  background-color: #dcfce7;
+}
+
+.yellowCardIcon {
+  background-color: #fef3c7;
+}
+
+.grayCardIcon {
+  background-color: #f1f5f9;
+}
+
+/* Icons */
+.blueIcon, .greenIcon, .redIcon, .yellowIcon, .grayIcon,
+.blueIconMd, .greenIconMd, .yellowIconMd, .grayIconMd {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.blueIcon {
+  color: #2563eb;
+}
+
+.greenIcon {
+  color: #16a34a;
+}
+
+.redIcon {
+  color: #dc2626;
+}
+
+.yellowIcon {
+  color: #ca8a04;
+}
+
+.grayIcon {
+  color: #64748b;
+}
+
+.blueIconMd {
+  color: #2563eb;
+}
+
+.greenIconMd {
+  color: #16a34a;
+}
+
+.yellowIconMd {
+  color: #ca8a04;
+}
+
+.grayIconMd {
+  color: #64748b;
+}
+
+/* Progress Bars */
+.todoBar {
+  background-color: #94a3b8;
+}
+
+.in-progressBar {
+  background-color: #3b82f6;
+}
+
+.reviewBar {
+  background-color: #facc15;
+}
+
+.completedBar {
+  background-color: #22c55e;
+}
+
+.lowPriorityBar {
+  background-color: #4ade80;
+}
+
+.mediumPriorityBar {
+  background-color: #facc15;
+}
+
+.highPriorityBar {
+  background-color: #ef4444;
+}
+
+/* Loading & Error States */
+.loadingContainer, .errorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 1rem;
+  color: #64748b;
+}
+
+.errorContainer {
+  color: #dc2626;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .statsGrid, .statusCardsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .statsGrid, .statusCardsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboardContent {
+    padding: 1rem;
+  }
+}
