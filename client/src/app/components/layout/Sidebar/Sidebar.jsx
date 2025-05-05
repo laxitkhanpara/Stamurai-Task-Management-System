@@ -23,7 +23,7 @@ export default function Sidebar({ isOpen, user, toggleSidebar }) {
       {
         name: 'My Tasks',
         icon: <CheckSquare size={20} />,
-        href: '/tasks/my-tasks',
+        href: '/admin/TaskManage',
         allowedRoles: ['user', 'manager', 'admin']
       },
       {
@@ -92,8 +92,8 @@ export default function Sidebar({ isOpen, user, toggleSidebar }) {
               <Link
                 href={item.href}
                 className={`${styles.menuItem} ${router.pathname === item.href || router.pathname?.startsWith(`${item.href}/`)
-                    ? styles.active
-                    : ''
+                  ? styles.active
+                  : ''
                   }`}
               >
                 <span className={styles.icon}>{item.icon}</span>

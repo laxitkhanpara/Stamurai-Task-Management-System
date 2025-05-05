@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addUser, deleteUserById, getUserById, getUsers } from "../thunks/userThunk";
+import { addUser, fetchCurrentUser, deleteUserById, getUserById, getUsers } from "../thunks/userThunk";
 
 const initialState = {
   items: [],
@@ -28,23 +28,24 @@ const userSlice = createSlice({
       })
       .addCase(getUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
-        console.log("stae.items", state.items);
-        
+        state.items = action.payload.data;
       })
       .addCase(getUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(getUserById.pending, (state) => {
+
+      .addCase(fetchCurrentUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+
       })
-      .addCase(getUserById.fulfilled, (state, action) => {
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.loading = false;
         state.currentUser = action.payload;
+
       })
-      .addCase(getUserById.rejected, (state, action) => {
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

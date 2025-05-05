@@ -69,13 +69,13 @@ router.get("/logout", protect, logout);
 // Current user routes - Private access
 router.get("/me", protect, getMe);
 router.put(
-  "/updatedetails", 
-  [protect, updateDetailsValidation], 
+  "/updatedetails",
+  [protect, updateDetailsValidation],
   updateDetails
 );
 router.put(
-  "/updatepassword", 
-  [protect, updatePasswordValidation], 
+  "/updatepassword",
+  [protect, updatePasswordValidation],
   updatePassword
 );
 
@@ -83,14 +83,15 @@ router.put(
 router.route("/users")
   .get(protect, authorize('admin'), getUsers)
   .post(
-    [protect, authorize('admin'), createUserValidation], 
+    [protect, authorize('admin'), createUserValidation],
     createUser
   );
 
 router.route("/users/:id")
-  .get(protect, authorize('admin'), getUser)
+  // .get(protect, authorize('admin'), getUser)
+  .get(getUser)
   .put(
-    [protect, authorize('admin'), updateUserValidation], 
+    [protect, authorize('admin'), updateUserValidation],
     updateUser
   )
   .delete(protect, authorize('admin'), deleteUser);

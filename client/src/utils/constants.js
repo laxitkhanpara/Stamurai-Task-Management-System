@@ -28,6 +28,17 @@ export const RequestStatus = {
 export const API_ENDPOINTS = {
   USERS: '/users',
   POSTS: '/posts',
+
+  //tasks
+  GET_TASKS:'/tasks',
+  GET_TASK:'/tasks/:id',
+  CREATE_TASK:'/tasks',
+  UPDATE_TASK:'/tasks/',
+  DELETE_TASK: '/tasks/:id',
+  GET_USER_TASKS:'/tasks/user/',
+  UPDATE_TASK_STATUS:'/tasks/',
+  GETDASHBOARD_STATS:'/tasks/dashboard',
+
 };
 
 // Pagination defaults

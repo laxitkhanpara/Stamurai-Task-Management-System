@@ -64,13 +64,13 @@ const TaskSchema = new mongoose.Schema({
 TaskSchema.index({ title: 'text', description: 'text' });
 
 // Pre save middleware - Update the updatedAt timestamp
-TaskSchema.pre('save', function(next) {
+TaskSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
 // Add a virtual property to check if task is overdue
-TaskSchema.virtual('isOverdue').get(function() {
+TaskSchema.virtual('isOverdue').get(function () {
   return this.status !== 'completed' && this.dueDate < new Date();
 });
 

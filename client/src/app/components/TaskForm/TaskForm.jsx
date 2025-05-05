@@ -1,57 +1,45 @@
 // components/TaskForm/TaskForm.jsx
 'use client';
 import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { getUsers } from '../../../store/thunks/userThunk';
+import { updateTaskThunk, createNewTask } from '../../../store/thunks/taskThunk';
 import styles from './TaskForm.module.css';
 
-const TaskForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
+const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
+  console.log("initialValues", initialValues._id);
+  const dispatch = useDispatch();
+  const { items: users, loading: usersLoading } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({
+    
     title: '',
     description: '',
     dueDate: '',
     priority: 'medium',
     status: 'todo',
     assigneeId: '',
+    recurring: false,
+    recurrenceType: 'daily',
     ...initialValues
   });
   
   useEffect(() => {
-    fetchUsers();
-  }, []);
-  
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/users', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+    // Fetch users from Redux store if not already loaded    
+    if (users.length === 0 && !usersLoading) {
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      
-      const data = await response.json();
-      setUsers(data.users);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      setLoading(false);
+      dispatch(getUsers());
     }
-  };
+  }, [dispatch, users, usersLoading]);
   
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     });
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Format the date to ISO string if needed
@@ -63,9 +51,23 @@ const TaskForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
       }
     }
     
-    onSubmit(formattedData);
+    try {
+      
+      
+      if (isEditing) {
+        console.log(initialValues._id);
+        await dispatch(updateTaskThunk({taskId:initialValues._id},{taskData:formattedData}))
+      } else {
+        await dispatch(createNewTask(formattedData))
+      }
+      // Close modal or redirect if needed
+      if (onClose) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error submitting task:', error);
+    }
   };
-  
   const formatDateForInput = (dateString) => {
     if (!dateString) return '';
     
@@ -77,6 +79,10 @@ const TaskForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
   
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
+      <h2 className={styles.formTitle}>
+        {isEditing ? 'Edit Task' : 'Create New Task'}
+      </h2>
+      
       <div className={styles.formGroup}>
         <label htmlFor="title" className={styles.label}>
           Title <span className={styles.required}>*</span>
@@ -89,6 +95,7 @@ const TaskForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
           onChange={handleChange}
           required
           className={styles.input}
+          placeholder="Enter task title"
         />
       </div>
       
@@ -102,7 +109,8 @@ const TaskForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
           value={formData.description}
           onChange={handleChange}
           className={styles.textarea}
-          rows="3"
+          rows="4"
+          placeholder="Enter task description"
         />
       </div>
       
@@ -153,8 +161,9 @@ const TaskForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
             className={styles.select}
           >
             <option value="todo">To Do</option>
-            <option value="inProgress">In Progress</option>
+            <option value="in-progress">In Progress</option>
             <option value="completed">Completed</option>
+            <option value="review">Review</option>
           </select>
         </div>
         
@@ -168,38 +177,18 @@ const TaskForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
             value={formData.assigneeId || ''}
             onChange={handleChange}
             className={styles.select}
-            disabled={loading}
+            disabled={usersLoading || users.length === 0}
           >
             <option value="">Select User</option>
-            {users.map(user => (
-              <option key={user._id} value={user._id}>
+            {users && users.map(user => (
+              <option key={user.id || user._id} value={user.id || user._id}>
                 {user.name}
               </option>
             ))}
           </select>
+          {usersLoading && <span className={styles.loadingText}>Loading users...</span>}
         </div>
       </div>
-      
-      {formData.recurring && (
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label htmlFor="recurrenceType" className={styles.label}>
-              Recurrence Type
-            </label>
-            <select
-              id="recurrenceType"
-              name="recurrenceType"
-              value={formData.recurrenceType || 'daily'}
-              onChange={handleChange}
-              className={styles.select}
-            >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
-          </div>
-        </div>
-      )}
       
       <div className={styles.formGroup}>
         <label className={`${styles.label} ${styles.checkboxLabel}`}>
@@ -207,17 +196,36 @@ const TaskForm = ({ onSubmit, initialValues = {}, isEditing = false }) => {
             type="checkbox"
             name="recurring"
             checked={formData.recurring || false}
-            onChange={(e) => setFormData({
-              ...formData,
-              recurring: e.target.checked
-            })}
+            onChange={handleChange}
             className={styles.checkbox}
           />
-          Make this a recurring task
+          <span className={styles.checkboxText}>Make this a recurring task</span>
         </label>
       </div>
       
+      {formData.recurring && (
+        <div className={styles.formGroup}>
+          <label htmlFor="recurrenceType" className={styles.label}>
+            Recurrence Type
+          </label>
+          <select
+            id="recurrenceType"
+            name="recurrenceType"
+            value={formData.recurrenceType || 'daily'}
+            onChange={handleChange}
+            className={styles.select}
+          >
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+      )}
+      
       <div className={styles.formActions}>
+        <button type="button" onClick={onClose} className={styles.cancelButton}>
+          Cancel
+        </button>
         <button type="submit" className={styles.submitButton}>
           {isEditing ? 'Update Task' : 'Create Task'}
         </button>

@@ -6,14 +6,14 @@ export const addUser = async (userData) => {
 }
 
 export const getUser = async () => {
-  const response = await api.get("/users");
+  const response = await api.get("/auth/users");
+  console.log("getUser", response);
+  
   return response;
 }
 
 export const getUserById = async (id) => {
-  const response = await api.get(`/users/${id}`);
-  console.log("User API response:", response);
-  
+  const response = await api.get(`/auth/users/${id}`);
   return response;
 }
 
