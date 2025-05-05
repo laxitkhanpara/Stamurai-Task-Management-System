@@ -19,8 +19,8 @@ app.use('/api/notification', notificationRoute);
 connectDB();
 
 //set sever config
-const server = app.listen(env.parsed.PORT, (req, res) => {
-  console.log(`Server is running on port ${env.parsed.PORT}`);
+const server = app.listen(process.env.PORT, (req, res) => {
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
 server.setTimeout(90000, () => {
   console.log('Server timeout after 10 seconds');
