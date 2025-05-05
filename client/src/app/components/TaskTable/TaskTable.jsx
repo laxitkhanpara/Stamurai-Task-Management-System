@@ -115,7 +115,7 @@ const TaskTable = () => {
       return (
         task.title?.toLowerCase().includes(query) ||
         task.description?.toLowerCase().includes(query) ||
-        (task.assignee?.name && task.assignee.name.toLowerCase().includes(query))
+        (task.assignedTo?.name && task.assignedTo.name.toLowerCase().includes(query))
       );
     }
 
@@ -275,7 +275,7 @@ const TaskTable = () => {
                       {new Date(task?.dueDate).toLocaleDateString()}
                       {isOverdue(task) && <span className={styles.overdueTag}>Overdue</span>}
                     </td>
-                    <td>{task.assignee?.name || 'Unassigned'}</td>
+                    <td>{task.assignedTo?.name || 'Unassigned'}</td>
                     <td className={styles.actions}>
                       <button
                         className={`${styles.actionButton} ${styles.viewButton}`}
