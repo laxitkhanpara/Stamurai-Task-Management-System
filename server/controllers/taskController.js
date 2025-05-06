@@ -20,16 +20,16 @@ exports.createTask = async (req, res) => {
     req.body.createdBy = req.user.id;
 
     // Validate assignee exists
-    if (req.body.assignedTo) {
-      const assignee = await User.findById(req.body.assignedTo);
+    if (req.body.assigneeId) {
+      const assignee = await User.findById(req.body.assigneeId);
       if (!assignee) {
         return res.status(400).json({
           success: false,
           error: 'Assigned user not found'
         });
       }
+      req.body.assignedTo = req.body.assigneeId;
     } else {
-      // Default to self if no assignee provided
       req.body.assignedTo = req.user.id;
     }
 
@@ -37,14 +37,24 @@ exports.createTask = async (req, res) => {
     const task = await Task.create(req.body);
 
     // Create notification for assigned user (if not self-assigned)
-    if (req.body.assignedTo.toString() !== req.user.id.toString()) {
-      await Notification.create({
-        recipient: req.body.assignedTo,
+    if (req.body.assigneeId && req.body.assigneeId.toString() !== req.user.id.toString()) {
+      const notification = await Notification.create({
+        recipient: req.body.assigneeId,
         sender: req.user.id,
         task: task._id,
         message: `You have been assigned a new task: ${task.title}`,
         type: 'task_assigned'
       });
+
+      // Emit socket notification
+      if (req.app.get('io')) {
+        const socketNotification = {
+          ...notification.toObject(),
+          sender: { _id: req.user.id, name: req.user.name },
+          task: { _id: task._id, title: task.title }
+        };
+        req.app.get('io').sendNotification(req.body.assigneeId, socketNotification);
+      }
     }
 
     res.status(201).json({
@@ -60,10 +70,103 @@ exports.createTask = async (req, res) => {
   }
 };
 
+// Other controller methods...
+
+// @desc    Update task
+// @route   PUT /api/tasks/:id
+// @access  Private
+exports.updateTask = async (req, res) => {
+  try {
+    let task = await Task.findById(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        error: 'Task not found'
+      });
+    }
+
+    // Check if user is authorized to update the task
+    if (task.createdBy.toString() !== req.user.id &&
+      task.assignedTo.toString() !== req.user.id &&
+      req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: 'Not authorized to update this task'
+      });
+    }
+
+    // Check if task assignment has changed
+    const assignmentChanged = req.body.assignedTo &&
+      req.body.assignedTo !== task.assignedTo.toString();
+
+    // Update task
+    task = await Task.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
+
+    // Create notification for newly assigned user
+    if (assignmentChanged) {
+      const notification = await Notification.create({
+        recipient: req.body.assignedTo,
+        sender: req.user.id,
+        task: task._id,
+        message: `You have been assigned to the task: ${task.title}`,
+        type: 'task_assigned'
+      });
+
+      // Emit socket notification
+      if (req.app.get('io')) {
+        const socketNotification = {
+          ...notification.toObject(),
+          sender: { _id: req.user.id, name: req.user.name },
+          task: { _id: task._id, title: task.title }
+        };
+        req.app.get('io').sendNotification(req.body.assignedTo, socketNotification);
+      }
+    }
+
+    // Create notification for task update
+    if (task.assignedTo.toString() !== req.user.id) {
+      const notification = await Notification.create({
+        recipient: task.assignedTo,
+        sender: req.user.id,
+        task: task._id,
+        message: `Task "${task.title}" has been updated`,
+        type: 'task_updated'
+      });
+
+      // Emit socket notification for task update
+      if (req.app.get('io')) {
+        const socketNotification = {
+          ...notification.toObject(),
+          sender: { _id: req.user.id, name: req.user.name },
+          task: { _id: task._id, title: task.title }
+        };
+        req.app.get('io').sendNotification(task.assignedTo.toString(), socketNotification);
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: task
+    });
+  } catch (error) {
+    console.error(`Error in updateTask: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      error: 'Server error'
+    });
+  }
+};
+
 // @desc    Get all tasks
 // @route   GET /api/tasks
 // @access  Private
 exports.getTasks = async (req, res) => {
+
+
   try {
     let query;
 
@@ -79,6 +182,7 @@ exports.getTasks = async (req, res) => {
 
     // Create operators ($gt, $gte, etc)
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+    console.log("queryStr:", queryStr);
 
     // Base query - only fetch tasks created by or assigned to user
     query = Task.find({
@@ -202,77 +306,6 @@ exports.getTask = async (req, res) => {
   }
 };
 
-// @desc    Update task
-// @route   PUT /api/tasks/:id
-// @access  Private
-exports.updateTask = async (req, res) => {
-  try {
-    console.log("req.params.id", req.body);
-    let task = await Task.findById(req.params.id);
-    console.log("task:", task);
-    
-    if (!task) {
-      return res.status(404).json({
-        success: false,
-        error: 'Task not found'
-      });
-    }
-
-    // Check if user is authorized to update the task
-    if (task.createdBy.toString() !== req.user.id &&
-      task.assignedTo.toString() !== req.user.id &&
-      req.user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        error: 'Not authorized to update this task'
-      });
-    }
-
-    // Check if task assignment has changed
-    const assignmentChanged = req.body.assignedTo &&
-      req.body.assignedTo !== task.assignedTo.toString();
-
-    // Update task
-    task = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
-
-    // Create notification for newly assigned user
-    if (assignmentChanged) {
-      await Notification.create({
-        recipient: req.body.assignedTo,
-        sender: req.user.id,
-        task: task._id,
-        message: `You have been assigned to the task: ${task.title}`,
-        type: 'task_assigned'
-      });
-    }
-
-    // Create notification for task update
-    if (task.assignedTo.toString() !== req.user.id) {
-      await Notification.create({
-        recipient: task.assignedTo,
-        sender: req.user.id,
-        task: task._id,
-        message: `Task "${task.title}" has been updated`,
-        type: 'task_updated'
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: task
-    });
-  } catch (error) {
-    console.error(`Error in updateTask: ${error.message}`);
-    res.status(500).json({
-      success: false,
-      error: 'Server error'
-    });
-  }
-};
-
 // @desc    Delete task
 // @route   DELETE /api/tasks/:id
 // @access  Private
@@ -319,6 +352,8 @@ exports.deleteTask = async (req, res) => {
 // @access  Private (Admin and Manager Only)
 exports.getUserTasks = async (req, res) => {
   try {
+    console.log("req.params.userId", req.params.userId, req.user.id);
+
     // Only admin and managers can view other users' tasks
     if (req.user.role !== 'admin' && req.user.role !== 'manager' &&
       req.user.id !== req.params.userId) {
@@ -540,8 +575,8 @@ exports.getDashboardStats = async (req, res) => {
       {
         $match: {
           $or: [
-            { createdBy:new  mongoose.Types.ObjectId(req.user.id) },
-            { assignedTo:new  mongoose.Types.ObjectId(req.user.id) }
+            { createdBy: new mongoose.Types.ObjectId(req.user.id) },
+            { assignedTo: new mongoose.Types.ObjectId(req.user.id) }
           ]
         }
       },
@@ -558,8 +593,8 @@ exports.getDashboardStats = async (req, res) => {
       {
         $match: {
           $or: [
-            { createdBy:new  mongoose.Types.ObjectId(req.user.id) },
-            { assignedTo:new  mongoose.Types.ObjectId(req.user.id) }
+            { createdBy: new mongoose.Types.ObjectId(req.user.id) },
+            { assignedTo: new mongoose.Types.ObjectId(req.user.id) }
           ]
         }
       },

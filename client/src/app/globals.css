@@ -47,7 +47,10 @@ a {
 button {
   font-family: inherit;
 }
-
+body {
+  padding-top: 64px; /* Same as navbar height */
+  margin: 0;
+}
 /* Common form styles */
 .form-group {
   margin-bottom: 1rem;

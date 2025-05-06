@@ -10,8 +10,13 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
   console.log("initialValues", initialValues._id);
   const dispatch = useDispatch();
   const { items: users, loading: usersLoading } = useSelector((state) => state.user);
+  // Get current user role from Redux store
+  const { currentUser } = useSelector((state) => state.user);
+  console.log("currentUser", currentUser);
+  
+  const isManagerOrAdmin = currentUser && (currentUser.data.role === 'manager' || currentUser.data.role === 'admin');
+  
   const [formData, setFormData] = useState({
-    
     title: '',
     description: '',
     dueDate: '',
@@ -22,17 +27,22 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
     recurrenceType: 'daily',
     ...initialValues
   });
-  
+  if(isManagerOrAdmin){
   useEffect(() => {
     // Fetch users from Redux store if not already loaded    
     if (users.length === 0 && !usersLoading) {
-      
       dispatch(getUsers());
     }
   }, [dispatch, users, usersLoading]);
-  
+}
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // If user is not manager/admin, only allow status changes
+    if (!isManagerOrAdmin && name !== 'status') {
+      return;
+    }
+    
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value
@@ -44,6 +54,7 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
     
     // Format the date to ISO string if needed
     let formattedData = { ...formData };
+    console.log("formData:", formData);
     if (formData.dueDate) {
       const dueDate = new Date(formData.dueDate);
       if (!isNaN(dueDate.getTime())) {
@@ -52,12 +63,24 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
     }
     
     try {
-      
       if (isEditing) {
-        console.log(initialValues._id);
-        await dispatch(updateTaskThunk({taskId:initialValues._id,taskData:formattedData}))
+        // If not manager/admin, only submit the status change
+        if (!isManagerOrAdmin) {
+          await dispatch(updateTaskThunk({
+            taskId: initialValues._id,
+            taskData: { status: formData.status }
+          }));
+        } else {
+          await dispatch(updateTaskThunk({
+            taskId: initialValues._id,
+            taskData: formattedData
+          }));
+        }
       } else {
-        await dispatch(createNewTask(formattedData))
+        // Only managers/admins can create new tasks
+        if (isManagerOrAdmin) {
+          await dispatch(createNewTask(formattedData));
+        }
       }
       // Close modal or redirect if needed
       if (onClose) {
@@ -67,6 +90,7 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
       console.error('Error submitting task:', error);
     }
   };
+  
   const formatDateForInput = (dateString) => {
     if (!dateString) return '';
     
@@ -75,6 +99,18 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
     
     return date.toISOString().split('T')[0];
   };
+  
+  // Hide the create form for regular users
+  if (!isEditing && !isManagerOrAdmin) {
+    return (
+      <div className={styles.form}>
+        <p>You don't have permission to create new tasks.</p>
+        <button type="button" onClick={onClose} className={styles.cancelButton}>
+          Close
+        </button>
+      </div>
+    );
+  }
   
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
@@ -95,6 +131,8 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
           required
           className={styles.input}
           placeholder="Enter task title"
+          readOnly={!isManagerOrAdmin}
+          disabled={!isManagerOrAdmin}
         />
       </div>
       
@@ -110,6 +148,8 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
           className={styles.textarea}
           rows="4"
           placeholder="Enter task description"
+          readOnly={!isManagerOrAdmin}
+          disabled={!isManagerOrAdmin}
         />
       </div>
       
@@ -126,6 +166,8 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
             onChange={handleChange}
             required
             className={styles.input}
+            readOnly={!isManagerOrAdmin}
+            disabled={!isManagerOrAdmin}
           />
         </div>
         
@@ -139,6 +181,7 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
             value={formData.priority}
             onChange={handleChange}
             className={styles.select}
+            disabled={!isManagerOrAdmin}
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -158,6 +201,7 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
             value={formData.status}
             onChange={handleChange}
             className={styles.select}
+            // Status is editable by all users
           >
             <option value="todo">To Do</option>
             <option value="in-progress">In Progress</option>
@@ -176,7 +220,7 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
             value={formData.assigneeId || ''}
             onChange={handleChange}
             className={styles.select}
-            disabled={usersLoading || users.length === 0}
+            disabled={usersLoading || users.length === 0 || !isManagerOrAdmin}
           >
             <option value="">Select User</option>
             {users && users.map(user => (
@@ -197,6 +241,7 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
             checked={formData.recurring || false}
             onChange={handleChange}
             className={styles.checkbox}
+            disabled={!isManagerOrAdmin}
           />
           <span className={styles.checkboxText}>Make this a recurring task</span>
         </label>
@@ -213,6 +258,7 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
             value={formData.recurrenceType || 'daily'}
             onChange={handleChange}
             className={styles.select}
+            disabled={!isManagerOrAdmin}
           >
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
@@ -226,7 +272,7 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
           Cancel
         </button>
         <button type="submit" className={styles.submitButton}>
-          {isEditing ? 'Update Task' : 'Create Task'}
+          {isEditing ? (isManagerOrAdmin ? 'Update Task' : 'Update Status') : 'Create Task'}
         </button>
       </div>
     </form>

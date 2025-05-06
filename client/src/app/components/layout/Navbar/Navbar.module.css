@@ -1,5 +1,169 @@
 /* components/layout/Navbar.module.css */
+/* Add these styles to your existing Navbar.module.css file */
+
+.notificationContainer {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4757;
+  color: white;
+  border-radius: 50%;
+  min-width: 18px;
+  height: 18px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 350px;
+  max-width: 90vw;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdownTitle {
+  padding: 12px 16px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.notificationList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.notification {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.notification:hover {
+  background-color: var(--hover-bg-color);
+}
+
+.notification p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.notification .time {
+  display: block;
+  font-size: 12px;
+  color: var(--muted-text-color);
+  margin-bottom: 8px;
+}
+
+.unread {
+  background-color: rgba(var(--primary-rgb), 0.1);
+  position: relative;
+}
+
+.unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--primary-color);
+}
+
+.taskLink {
+  display: inline-block;
+  color: var(--primary-color);
+  font-size: 12px;
+  text-decoration: none;
+  margin-top: 4px;
+}
+
+.taskLink:hover {
+  text-decoration: underline;
+}
+
+.noNotifications {
+  padding: 16px;
+  text-align: center;
+  color: var(--muted-text-color);
+  margin: 0;
+}
+
+.dropdownFooter {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+}
+
+.textButton {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.textButton:hover {
+  text-decoration: underline;
+}
+
+/* Add animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .dropdown {
+    width: 300px;
+    right: -100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dropdown {
+    width: 280px;
+    right: -120px;
+  }
+}
 .navbar {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  right: 0; /* Make sure it spans full width */
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -8,9 +172,10 @@
   background-color: var(--surface-color);
   border-bottom: 1px solid var(--border-color);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 100;
+  /* Remove the duplicate position: relative */
+  width: 100%; /* Ensure full width */
 }
+
 
 .left, .right {
   display: flex;

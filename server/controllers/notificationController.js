@@ -1,8 +1,11 @@
 const Notification = require('../models/NotificationSchema');
+const mongoose = require('mongoose');
 
-// @desc    Get user notifications
-// @route   GET /api/notifications
-// @access  Private
+/**
+ * @desc    Get user notifications
+ * @route   GET /api/notifications
+ * @access  Private
+ */
 exports.getNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find({ recipient: req.user.id })
@@ -11,7 +14,7 @@ exports.getNotifications = async (req, res) => {
         { path: 'sender', select: 'name' },
         { path: 'task', select: 'title' }
       ]);
-
+    
     res.status(200).json({
       success: true,
       count: notifications.length,
@@ -26,20 +29,30 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-// @desc    Mark notification as read
-// @route   PUT /api/notifications/:id
-// @access  Private
+/**
+ * @desc    Mark notification as read
+ * @route   PUT /api/notifications/:id
+ * @access  Private
+ */
 exports.markAsRead = async (req, res) => {
   try {
-    let notification = await Notification.findById(req.params.id);
+    // Validate notification ID
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid notification ID format'
+      });
+    }
 
+    let notification = await Notification.findById(req.params.id);
+    
     if (!notification) {
       return res.status(404).json({
         success: false,
         error: 'Notification not found'
       });
     }
-
+    
     // Check if notification belongs to user
     if (notification.recipient.toString() !== req.user.id) {
       return res.status(403).json({
@@ -47,13 +60,16 @@ exports.markAsRead = async (req, res) => {
         error: 'Not authorized to access this notification'
       });
     }
-
+    
     notification = await Notification.findByIdAndUpdate(
       req.params.id,
       { read: true },
       { new: true }
-    );
-
+    ).populate([
+      { path: 'sender', select: 'name' },
+      { path: 'task', select: 'title' }
+    ]);
+    
     res.status(200).json({
       success: true,
       data: notification
@@ -67,19 +83,22 @@ exports.markAsRead = async (req, res) => {
   }
 };
 
-// @desc    Mark all notifications as read
-// @route   PUT /api/notifications/read-all
-// @access  Private
+/**
+ * @desc    Mark all notifications as read
+ * @route   PUT /api/notifications/read-all
+ * @access  Private
+ */
 exports.markAllAsRead = async (req, res) => {
   try {
-    await Notification.updateMany(
+    const result = await Notification.updateMany(
       { recipient: req.user.id, read: false },
       { read: true }
     );
-
+    
     res.status(200).json({
       success: true,
-      message: 'All notifications marked as read'
+      message: 'All notifications marked as read',
+      count: result.modifiedCount
     });
   } catch (error) {
     console.error(`Error in markAllAsRead: ${error.message}`);
@@ -90,20 +109,30 @@ exports.markAllAsRead = async (req, res) => {
   }
 };
 
-// @desc    Delete notification
-// @route   DELETE /api/notifications/:id
-// @access  Private
+/**
+ * @desc    Delete notification
+ * @route   DELETE /api/notifications/:id
+ * @access  Private
+ */
 exports.deleteNotification = async (req, res) => {
   try {
-    const notification = await Notification.findById(req.params.id);
+    // Validate notification ID
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid notification ID format'
+      });
+    }
 
+    const notification = await Notification.findById(req.params.id);
+    
     if (!notification) {
       return res.status(404).json({
         success: false,
         error: 'Notification not found'
       });
     }
-
+    
     // Check if notification belongs to user
     if (notification.recipient.toString() !== req.user.id) {
       return res.status(403).json({
@@ -111,9 +140,9 @@ exports.deleteNotification = async (req, res) => {
         error: 'Not authorized to delete this notification'
       });
     }
-
-    await notification.remove();
-
+    
+    await notification.deleteOne();
+    
     res.status(200).json({
       success: true,
       data: {}
@@ -127,3 +156,27 @@ exports.deleteNotification = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get unread notification count
+ * @route   GET /api/notifications/unread-count
+ * @access  Private
+ */
+exports.getUnreadCount = async (req, res) => {
+  try {
+    const count = await Notification.countDocuments({
+      recipient: req.user.id,
+      read: false
+    });
+    
+    res.status(200).json({
+      success: true,
+      data: { count }
+    });
+  } catch (error) {
+    console.error(`Error in getUnreadCount: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      error: 'Server error'
+    });
+  }
+};

@@ -45,25 +45,10 @@ export default function Sidebar({ isOpen, user, toggleSidebar }) {
     const roleSpecificItems = [];
     if (currentUserRole === 'admin' || currentUserRole === 'manager') {
       roleSpecificItems.push({
-        name: 'Team Tasks',
+        name: 'Users',
         icon: <Users size={20} />,
         href: '/admin/users',
         allowedRoles: ['manager', 'admin']
-      });
-    }
-
-    if (currentUserRole === 'admin') {
-      roleSpecificItems.push({
-        name: 'Analytics',
-        icon: <PieChart size={20} />,
-        href: '/admin/analytics',
-        allowedRoles: ['admin']
-      });
-      roleSpecificItems.push({
-        name: 'Settings',
-        icon: <Settings size={20} />,
-        href: '/admin/settings',
-        allowedRoles: ['admin']
       });
     }
 
@@ -95,7 +80,7 @@ export default function Sidebar({ isOpen, user, toggleSidebar }) {
       )}
       <nav className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}>
         <div className={styles.sidebarHeader}>
-          {isOpen && <h2 className={styles.sidebarTitle}>Navigation</h2>}
+          {isOpen && <h2 className={styles.sidebarTitle}>TaskFlow</h2>}
           <button className={styles.toggleButton} onClick={toggleSidebar} aria-label="Toggle sidebar">
             {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>

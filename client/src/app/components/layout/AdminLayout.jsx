@@ -113,7 +113,7 @@ export default function AdminLayout({ children }) {
             toggleSidebar={toggleSidebar}
             toggleTheme={toggleTheme}
             theme={theme}
-            user={currentUser}
+            user={currentUser.data}
             handleLogout={handleLogout}
           />
           <div className={styles.container}>
