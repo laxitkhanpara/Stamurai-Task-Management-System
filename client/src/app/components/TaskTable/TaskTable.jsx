@@ -1,6 +1,6 @@
 // components/TaskTable/TaskTable.jsx
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styles from './TaskTable.module.css';
 import TaskCard from '../TaskCard/TaskCard';
@@ -21,26 +21,24 @@ const TaskTable = () => {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState(false);
 
-  useEffect(() => {
-    // First, ensure we have the current user
-    dispatch(fetchCurrentUser());
-  }, [dispatch]);
+// Option 2: Use a ref to track if we've already fetched
+const tasksInitiallyFetched = useRef(false);
 
-  useEffect(() => {
-    if (currentUser) {
-      // Fetch tasks based on user role
-      if (currentUser.role === 'admin' || currentUser.role === 'manager') {
-        dispatch(fetchTasks());
-      } else {
-        // Regular user - only fetch their assigned tasks
-        dispatch(fetchUserTasks(currentUser.data?._id));
-      }
+useEffect(() => {
+  
+  if (currentUser && !tasksInitiallyFetched.current) {
+    // Fetch tasks based on user role
+    if (currentUser.role === 'admin' || currentUser.role === 'manager') {
+      dispatch(fetchTasks());
+    } else {
+      // Regular user - only fetch their assigned tasks
+      dispatch(fetchUserTasks(currentUser.data?._id));
     }
-  }, [dispatch, currentUser]);
+    tasksInitiallyFetched.current = true;
+  }
+}, [dispatch, currentUser]); // Will only fetch once after currentUser is available
 
   const handleTaskUpdate = (updatedTask) => {
-    console.log('Updated Task:', updatedTask);
-    
     dispatch(updateTaskThunk({ taskId: updatedTask._id, taskData: updatedTask }))
       .unwrap()
       .then(() => {
@@ -149,7 +147,6 @@ const TaskTable = () => {
   });
 
   const isOverdue = (task) => {
-    console.log('task:', task);
 
     if (task?.status === 'completed') return false;
     const dueDate = new Date(task?.dueDate);
@@ -311,6 +308,7 @@ const TaskTable = () => {
                           <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
                       </button>
+                
                       <button
                         className={`${styles.actionButton} ${styles.deleteButton}`}
                         onClick={(e) => {
@@ -329,8 +327,8 @@ const TaskTable = () => {
                           <line x1="14" y1="11" x2="14" y2="17"></line>
                         </svg>
                       </button>
+
                     </td>
-                    
                   </tr>
                 ))
               )}

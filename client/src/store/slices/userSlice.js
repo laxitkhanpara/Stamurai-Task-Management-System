@@ -1,23 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addUser, fetchCurrentUser, deleteUserById, getUserById, getUsers } from "../thunks/userThunk";
+import { addUser, fetchCurrentUser, deleteUserById, getUserById, getUsers, updateUserById } from "../thunks/userThunk";
 
 const initialState = {
   items: [],
   currentUser: null,
   loading: false,
-  user: null,
-  error: null
+  error: null,
+  lastFetchTime: null
 };
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    clearCurrentItem: (state) => {
-      state.currentItem = null;
+    clearCurrentUser: (state) => {
+      state.currentUser = null;
     },
     clearError: (state) => {
       state.error = null;
+    },
+    resetLastFetchTime: (state) => {
+      state.lastFetchTime = null;
     }
   },
   extraReducers: (builder) => {
@@ -28,36 +31,11 @@ const userSlice = createSlice({
       })
       .addCase(getUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.data;
+        state.items = Array.isArray(action.payload) ? action.payload :
+          (Array.isArray(action.payload?.data) ? action.payload.data : []);
+        state.lastFetchTime = Date.now();
       })
       .addCase(getUsers.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      .addCase(fetchCurrentUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-
-      })
-      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.currentUser = action.payload;
-
-      })
-      .addCase(fetchCurrentUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(addUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(addUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items.push(action.payload);
-      })
-      .addCase(addUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -67,15 +45,60 @@ const userSlice = createSlice({
       })
       .addCase(deleteUserById.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = state.items.filter(user => user.id !== action.payload.id);
+        if (Array.isArray(state.items) && action.payload?._id) {
+          state.items = state.items.filter(user => user._id !== action.payload._id);
+        }
       })
       .addCase(deleteUserById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-
+      .addCase(updateUserById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserById.fulfilled, (state, action) => {
+        state.loading = false;
+        if (Array.isArray(state.items) && action.payload?._id) {
+          state.items = state.items.map(user =>
+            user._id === action.payload._id ? action.payload : user
+          );
+        }
+      })
+      .addCase(updateUserById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(addUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addUser.fulfilled, (state, action) => {
+        state.loading = false;
+        console.log("addUser.fulfilled", action.payload);
+        
+        if (action.payload && Array.isArray(state.items)) {
+          state.items = [...state.items, action.payload.user];
+        }
+      })
+      .addCase(addUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentUser = action.payload;
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   }
 });
 
-export const { loginSuccess, logout, setError } = userSlice.actions;
+export const { clearCurrentUser, clearError, resetLastFetchTime } = userSlice.actions;
 export default userSlice.reducer;

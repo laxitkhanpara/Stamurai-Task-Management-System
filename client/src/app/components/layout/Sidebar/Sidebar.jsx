@@ -1,23 +1,36 @@
-// components/layout/Sidebar.js
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { ChevronRight, ChevronLeft, LayoutDashboard, CheckSquare, Clock, Users, Settings, PieChart } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
 export default function Sidebar({ isOpen, user, toggleSidebar }) {
-  const router = useRouter();
-  const pathname = router.asPath;
-  const [menuItems, setMenuItems] = useState([]);
+  // Remove console.log to prevent unnecessary rerenders
+  // console.log('user', user);
 
-  useEffect(() => {
+  const pathname = usePathname();
+  const prevUserRole = useRef(null);
+
+  // Memoize menu items based on user role
+  const menuItems = useMemo(() => {
+    if (!user?.data) return [];
+
+    const currentUserRole = user?.data?.role || 'user';
+
+    // If role hasn't changed, return previous items
+    if (prevUserRole.current === currentUserRole) {
+      return prevUserRole.currentItems || [];
+    }
+
+    prevUserRole.current = currentUserRole;
+
     // Base menu items for all users
     const baseItems = [
       {
         name: 'Dashboard',
         icon: <LayoutDashboard size={20} />,
-        href: '/dashboard',
+        href: '/admin',
         allowedRoles: ['user', 'manager', 'admin']
       },
       {
@@ -25,51 +38,54 @@ export default function Sidebar({ isOpen, user, toggleSidebar }) {
         icon: <CheckSquare size={20} />,
         href: '/admin/TaskManage',
         allowedRoles: ['user', 'manager', 'admin']
-      },
-      {
-        name: 'Team Tasks',
-        icon: <Users size={20} />,
-        href: '/tasks/team-tasks',
-        allowedRoles: ['user', 'manager', 'admin']
-      },
+      }
     ];
 
     // Additional items based on user role
     const roleSpecificItems = [];
-
-    if (user && (user.role === 'admin' || user.role === 'manager')) {
+    if (currentUserRole === 'admin' || currentUserRole === 'manager') {
       roleSpecificItems.push({
-        name: 'Team Management',
+        name: 'Team Tasks',
         icon: <Users size={20} />,
-        href: '/team',
+        href: '/admin/users',
         allowedRoles: ['manager', 'admin']
       });
     }
 
-    if (user && user.role === 'admin') {
+    if (currentUserRole === 'admin') {
       roleSpecificItems.push({
         name: 'Analytics',
         icon: <PieChart size={20} />,
-        href: '/analytics',
+        href: '/admin/analytics',
         allowedRoles: ['admin']
       });
-
       roleSpecificItems.push({
         name: 'Settings',
         icon: <Settings size={20} />,
-        href: '/settings',
+        href: '/admin/settings',
         allowedRoles: ['admin']
       });
     }
 
     // Filter menu items based on user role
-    const userRole = user?.role || 'user';
     const filteredItems = [...baseItems, ...roleSpecificItems].filter(item =>
-      item.allowedRoles.includes(userRole)
+      item.allowedRoles.includes(currentUserRole)
     );
 
-    setMenuItems(filteredItems);
-  }, [user]);
+    // Store the current items for future reference
+    prevUserRole.currentItems = filteredItems;
+    return filteredItems;
+  }, [user?.data?.role]);
+
+  // Memoize the isActive function
+  const isActive = useMemo(() => {
+    return (href) => {
+      if (href === '/admin' && pathname === '/admin') {
+        return true;
+      }
+      return pathname === href || (pathname?.startsWith(href) && href !== '/admin');
+    };
+  }, [pathname]);
 
   return (
     <>
@@ -77,24 +93,19 @@ export default function Sidebar({ isOpen, user, toggleSidebar }) {
       {isOpen && (
         <div className={styles.overlay} onClick={toggleSidebar} />
       )}
-
       <nav className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}>
         <div className={styles.sidebarHeader}>
           {isOpen && <h2 className={styles.sidebarTitle}>Navigation</h2>}
-          <button className={styles.toggleButton} onClick={toggleSidebar}>
+          <button className={styles.toggleButton} onClick={toggleSidebar} aria-label="Toggle sidebar">
             {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>
         </div>
-
         <ul className={styles.menu}>
           {menuItems.map((item) => (
             <li key={item.name}>
               <Link
                 href={item.href}
-                className={`${styles.menuItem} ${router.pathname === item.href || router.pathname?.startsWith(`${item.href}/`)
-                  ? styles.active
-                  : ''
-                  }`}
+                className={`${styles.menuItem} ${isActive(item.href) ? styles.active : ''}`}
               >
                 <span className={styles.icon}>{item.icon}</span>
                 {isOpen && <span className={styles.text}>{item.name}</span>}

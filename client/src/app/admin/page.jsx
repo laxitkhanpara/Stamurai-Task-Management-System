@@ -19,18 +19,18 @@ import styles from './Dashboard.module.css';
 export default function TaskDashboard() {
   const dispatch = useDispatch();
   const { dashboardStats, isLoading, error } = useSelector((state) => state.task);
+console.log("dashboardStats", dashboardStats);
 
   useEffect(() => {
     // Fetch dashboard stats when component mounts
-    console.log('Fetching dashboard stats...');
-    console.log(dashboardStats);
+    if(!dashboardStats){
       dispatch(fetchDashboardStats());
+    }
 
   }, [dispatch, dashboardStats]);
 
   // For debugging
   useEffect(() => {
-    console.log('Dashboard stats from Redux:', dashboardStats);
   }, [dashboardStats]);
 
   const formatLabel = (label) => {

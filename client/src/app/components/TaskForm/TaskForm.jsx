@@ -53,10 +53,9 @@ const TaskForm = ({ initialValues = {}, isEditing = false, onClose }) => {
     
     try {
       
-      
       if (isEditing) {
         console.log(initialValues._id);
-        await dispatch(updateTaskThunk({taskId:initialValues._id},{taskData:formattedData}))
+        await dispatch(updateTaskThunk({taskId:initialValues._id,taskData:formattedData}))
       } else {
         await dispatch(createNewTask(formattedData))
       }

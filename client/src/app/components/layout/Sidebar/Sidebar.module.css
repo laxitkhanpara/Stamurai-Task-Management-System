@@ -42,18 +42,25 @@
   border: none;
   cursor: pointer;
   color: var(--text-primary);
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 4px;
+  padding: 0;
+  transition: background-color 0.2s;
 }
 
 .toggleButton:hover {
-  background-color: var(--bg-color);
+  background-color: var(--bg-hover);
+}
+
+.toggleButton:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 .menu {
   list-style: none;
-  padding: 0;
+  padding: 0.5rem 0;
   margin: 0;
 }
 
@@ -63,18 +70,33 @@
   padding: 0.75rem 1rem;
   color: var(--text-primary);
   text-decoration: none;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   border-left: 3px solid transparent;
+  position: relative;
+  margin: 0.25rem 0.5rem;
+  border-radius: 6px;
 }
 
 .menuItem:hover {
-  background-color: var(--bg-color);
+  background-color: var(--bg-hover);
+  color: var(--primary-color);
 }
 
 .active {
-  background-color: rgba(79, 70, 229, 0.08);
+  background-color: rgba(79, 70, 229, 0.1);
   color: var(--primary-color);
-  border-left-color: var(--primary-color);
+  font-weight: 500;
+}
+
+.active::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--primary-color);
+  border-radius: 0 3px 3px 0;
 }
 
 .icon {
@@ -87,6 +109,8 @@
 .text {
   margin-left: 12px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .overlay {

@@ -207,8 +207,10 @@ exports.getTask = async (req, res) => {
 // @access  Private
 exports.updateTask = async (req, res) => {
   try {
+    console.log("req.params.id", req.body);
     let task = await Task.findById(req.params.id);
-
+    console.log("task:", task);
+    
     if (!task) {
       return res.status(404).json({
         success: false,

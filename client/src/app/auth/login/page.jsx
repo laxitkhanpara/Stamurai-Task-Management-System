@@ -48,7 +48,6 @@ export default function Login() {
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
     setApiError('');
 
@@ -58,19 +57,9 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      console.log("credential", formData);
-      e.preventDefault()
-
-      console.log("formData", formData);
-
-      dispatch(login(formData)).then((res) => {
-        if (res.meta.requestStatus === "fulfilled") {
-          router.push('/admin');
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+      const result = await dispatch(login(formData)).unwrap();
+      if (result) {
+        router.push('/admin');
       }
     } catch (err) {
       setApiError(err.message || 'Something went wrong. Please try again.');

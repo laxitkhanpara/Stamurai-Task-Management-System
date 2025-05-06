@@ -11,11 +11,7 @@ export const deleteTask = async (id) => {
   return response;
 }
 export const getDashboardStats = async () => {
-  console.log("getDashboardStats");
-  
   const response = await api.get(`${API_ENDPOINTS.GETDASHBOARD_STATS}`);
-  console.log('response', response);
-  
   return response;
 }
 export const getTask = async (userData) => {
@@ -28,7 +24,6 @@ export const getTasks = async () => {
 }
 export const getUserTasks = async (userId) => {
   const response = await api.get(`${API_ENDPOINTS.GET_USER_TASKS}${userId}`);
-  
   return response;
 }
 export const updateTask = async (taskId, userData) => {

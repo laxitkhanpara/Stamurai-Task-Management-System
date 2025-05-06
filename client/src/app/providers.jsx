@@ -11,11 +11,7 @@ function ReduxInitializer({ children }) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log(12345678);
-    
     dispatch(fetchCurrentUser());
-    console.log(12345678);
-
   }, [dispatch]);
 
   return children;

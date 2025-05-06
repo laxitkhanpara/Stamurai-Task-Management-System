@@ -4,7 +4,8 @@
 
 // Request status enum for tracking API call states
 
-export const API_BASE_URL = "https://stamurai-task-management-system-w5a1.onrender.com/api/";
+// export const  API_BASE_URL= "https://stamurai-task-management-system-w5a1.onrender.com/api/";
+export const API_BASE_URL = "http://localhost:5000/api/";
 
 export const AUTH_ENDPOINTS = {
   LOGIN: `/auth/login`,

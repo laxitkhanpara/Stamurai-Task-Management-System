@@ -36,11 +36,8 @@ export const fetchTask = createAsyncThunk('tasks/fetchTask', async (taskId, thun
 
 export const fetchDashboardStats = createAsyncThunk('tasks/fetchDashboardStats', async (thunkApi) => {
   try {
-    console.log("12------");
-    
     const response = await getDashboardStats();
-    console.log('response', response);
-    return response.data.content;
+    return response.data;
   }
   catch (error) {
     return thunkApi.rejectWithValue(error.response.data);
@@ -68,15 +65,11 @@ export const updateTaskStatusThunk = createAsyncThunk('tasks/updateTaskStatus', 
     return thunkApi.rejectWithValue(error.response.data);
   }
 }
-
 );
 export const updateTaskThunk = createAsyncThunk('tasks/updateTask', async ({ taskId, taskData }, thunkApi) => {
   try {
-    console.log('taskId', taskId);
-    console.log('taskData', taskData);
-    
     const response = await updateTask(taskId, taskData);
-    return response.data.content;
+    return response.data.data;
   }
   catch (error) {
     return thunkApi.rejectWithValue(error.response.data);
