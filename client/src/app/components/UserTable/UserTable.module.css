@@ -109,6 +109,9 @@
 }
 
 .tableContainer {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   overflow-x: auto;
   border-radius: 0.5rem;
@@ -117,6 +120,7 @@
 }
 
 .table {
+  flex: 1;
   width: 100%;
   border-collapse: collapse;
   text-align: left;
@@ -383,5 +387,86 @@
   .modalContent {
     width: 95%;
     padding: 1.5rem;
+  }
+}
+
+
+.paginationContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 0 0 0.5rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.paginationInfo {
+  color: #6b7280;
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.paginationButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  padding: 0 0.5rem;
+  color: #4b5563;
+}
+
+.perPageControl {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+}
+
+.perPageControl .select {
+  min-width: 4rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+}
+
+
+
+
+/* Add responsive styles */
+@media (max-width: 768px) {
+  .paginationContainer {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .paginationInfo, .paginationControls, .perPageControl {
+    width: 100%;
+    justify-content: center;
   }
 }

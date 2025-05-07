@@ -149,7 +149,6 @@ const UserForm = ({ initialValues = {}, isEditing = false, onClose }) => {
         >
           <option value="user">User</option>
           <option value="manager">Manager</option>
-          <option value="admin">Admin</option>
         </select>
         {errors.role && <span className={styles.error}>{errors.role}</span>}
       </div>

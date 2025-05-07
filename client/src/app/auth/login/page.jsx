@@ -5,7 +5,7 @@ import Link from 'next/link';
 import styles from '../Auth.module.css';
 import { useDispatch } from 'react-redux';
 import { login } from '../../../store/thunks/authThunk';
-
+import Image from 'next/image';
 export default function Login() {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
@@ -72,6 +72,14 @@ export default function Login() {
     <div className={styles.authContainer}>
       <div className={styles.authCard}>
         <div className={styles.authHeader}>
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={160}
+            height={80}
+            className={styles.logo} 
+          />
+          <hr className={styles.divider} />
           <h1 className={styles.authTitle}>Welcome Back</h1>
           <p className={styles.authSubtitle}>Sign in to your account</p>
         </div>

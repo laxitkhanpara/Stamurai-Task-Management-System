@@ -6,6 +6,7 @@ import styles from '../Auth.module.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { register } from '../../../store/thunks/authThunk';
 import { toast } from 'react-toastify';
+import Image from 'next/image';
 
 export default function Register() {
   const dispatch = useDispatch();
@@ -102,6 +103,15 @@ export default function Register() {
     <div className={styles.authContainer}>
       <div className={styles.authCard}>
         <div className={styles.authHeader}>
+        <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={160}
+            height={80}
+            className={styles.logo} // Optional styling
+          />
+          <hr className={styles.divider} />
+
           <h1 className={styles.authTitle}>Create Account</h1>
           <p className={styles.authSubtitle}>Sign up to get started</p>
         </div>

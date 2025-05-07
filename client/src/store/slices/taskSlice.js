@@ -48,11 +48,9 @@ const taskSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(updateTaskThunk.pending, (state) => {
-        state.isLoading = true;
         state.error = null;
       })
       .addCase(updateTaskThunk.fulfilled, (state, action) => {
-        state.isLoading = false;
         console.log("action.payload", action.payload);
 
         if (action.payload && action.payload._id) {
@@ -66,11 +64,10 @@ const taskSlice = createSlice({
         }
       })
       .addCase(createNewTask.pending, (state) => {
-        state.isLoading = true;
+
         state.error = null;
       })
       .addCase(createNewTask.fulfilled, (state, action) => {  
-        state.isLoading = false;
         console.log("action.payload", action.payload);
         if (action.payload && action.payload._id) {
           state.tasks.push(action.payload);
@@ -78,19 +75,15 @@ const taskSlice = createSlice({
         }
       })
       .addCase(createNewTask.rejected, (state, action) => {
-        state.isLoading = false;
         state.error = action.payload;
       })  
       .addCase(updateTaskThunk.rejected, (state, action) => {
-        state.isLoading = false;
         state.error = action.payload;
       })
       .addCase(deleteTaskThunk.pending, (state) => {
-        state.isLoading = true;
         state.error = null;
       })
       .addCase(deleteTaskThunk.fulfilled, (state, action) => {
-        state.isLoading = false;
         if (action.payload && action.payload._id) {
           state.tasks = state.tasks.filter(task => task._id !== action.payload._id);
           if (state.selectedTask && state.selectedTask._id === action.payload._id) {
@@ -99,7 +92,6 @@ const taskSlice = createSlice({
         }
       })
       .addCase(deleteTaskThunk.rejected, (state, action) => {
-        state.isLoading = false;
         state.error = action.payload;
       })
       .addCase(fetchDashboardStats.pending, (state, action) => {

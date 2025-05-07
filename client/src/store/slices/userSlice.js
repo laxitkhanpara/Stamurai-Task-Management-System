@@ -41,25 +41,21 @@ const userSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(deleteUserById.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(deleteUserById.fulfilled, (state, action) => {
-        state.loading = false;
         if (Array.isArray(state.items) && action.payload?._id) {
           state.items = state.items.filter(user => user._id !== action.payload._id);
         }
       })
       .addCase(deleteUserById.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
       .addCase(updateUserById.pending, (state) => {
-        state.loading = true;
+
         state.error = null;
       })
       .addCase(updateUserById.fulfilled, (state, action) => {
-        state.loading = false;
         if (Array.isArray(state.items) && action.payload?._id) {
           state.items = state.items.map(user =>
             user._id === action.payload._id ? action.payload : user
@@ -67,23 +63,18 @@ const userSlice = createSlice({
         }
       })
       .addCase(updateUserById.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
       .addCase(addUser.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
       .addCase(addUser.fulfilled, (state, action) => {
-        state.loading = false;
         console.log("addUser.fulfilled", action.payload);
-        
         if (action.payload && Array.isArray(state.items)) {
           state.items = [...state.items, action.payload.user];
         }
       })
       .addCase(addUser.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
       })
       .addCase(fetchCurrentUser.pending, (state) => {

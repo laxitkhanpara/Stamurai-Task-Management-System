@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "docs": "jsdoc -c jsdoc.json",
+    "docs:serve": "http-server ./documentation"
+  },
+  "devDependencies": {
+    "docdash": "^1.2.0",
+    "http-server": "^14.1.1",
+    "jsdoc": "^4.0.0"
+  }
+}

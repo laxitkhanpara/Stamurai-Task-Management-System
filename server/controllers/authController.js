@@ -32,7 +32,7 @@ exports.register = async (req, res) => {
       email,
       password
     });
-
+    console.log("user:",user);
     sendTokenResponse(user, 201, res);
   } catch (error) {
     console.error(`Error in register: ${error.message}`);
@@ -199,12 +199,10 @@ exports.getUser = async (req, res) => {
  */
 exports.createUser = async (req, res) => {
   try {
-    // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
-
     const { name, email, password, role } = req.body;
 
     // Check if user exists
@@ -223,7 +221,7 @@ exports.createUser = async (req, res) => {
       password,
       role: role || 'user'
     });
-
+    console.log('user:',user);
     res.status(201).json({
       success: true,
       data: user

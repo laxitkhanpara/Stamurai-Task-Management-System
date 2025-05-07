@@ -3,13 +3,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styles from './UserTable.module.css';
 import UserForm from '../UserForm/UserForm';
-import { getUsers, deleteUserById, updateUserById } from '../../../store/thunks/userThunk';
+import { getUsers, deleteUserById } from '../../../store/thunks/userThunk';
 
 const UserTable = () => {
   const dispatch = useDispatch();
   const { items: users, isLoading, error } = useSelector((state) => state.user);
-  console.log('UserTable', users);
-
   const currentUser = useSelector((state) => state.user?.currentUser);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,9 +15,13 @@ const UserTable = () => {
   const [showUserForm, setShowUserForm] = useState(false);
   const [isEditingUser, setIsEditingUser] = useState(false);
   const [roleFilter, setRoleFilter] = useState('all');
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage, setUsersPerPage] = useState(10);
 
   // Use a ref to track if we've already fetched
-  const [hasFetchedUsers, setHasFetchedUsers] = useState(false);
   const initialFetchRef = useRef(false);
 
   useEffect(() => {
@@ -31,14 +33,14 @@ const UserTable = () => {
       dispatch(getUsers())
         .unwrap()
         .then(() => {
-          setHasFetchedUsers(true);
+          console.log("Users fetched successfully");
         })
         .catch(error => {
           console.error('Failed to fetch users:', error);
           initialFetchRef.current = false;
         });
     }
-  }, [dispatch, currentUser?._id, users]);
+  }, [dispatch, currentUser, users]);
 
   // Reset fetch state when user changes
   useEffect(() => {
@@ -47,44 +49,42 @@ const UserTable = () => {
     }
   }, [currentUser?._id]);
 
-  const handleUserUpdate = (updatedUser) => {
-    console.log("handleUserUpdate:", updatedUser);
+  // Reset to first page when filters or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, roleFilter]);
 
-    dispatch(updateUserById({ id: updatedUser._id, userData: updatedUser }))
-      .unwrap()
-      .then(() => {
-        closeAllModals();
-        // No need to refresh the list as the state is already updated by the reducer
-      })
-      .catch(error => {
-        console.error('Failed to update user:', error);
-      });
-  };
-
-  const handleUserDelete = (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      dispatch(deleteUserById(userId))
-        .unwrap()
-        .then(() => {
-          closeAllModals();
-          // No need to refresh the list as the state is already updated by the reducer
-        })
-        .catch(error => {
-          console.error('Failed to delete user:', error);
-        });
-    }
-  };
-
-  const handleEditUser = (user) => {
+  const handleEditUser = (user, e) => {
+    if (e) e.preventDefault(); // Prevent default to avoid page reload
     setSelectedUser(user);
     setIsEditingUser(true);
     setShowUserForm(true);
   };
 
-  const handleCreateUser = () => {
+  const handleCreateUser = (e) => {
+    if (e) e.preventDefault(); // Prevent default to avoid page reload
     setSelectedUser(null);
     setIsEditingUser(false);
     setShowUserForm(true);
+  };
+
+  const handleUserDelete = async (userId, e) => {
+    if (e) {
+      e.preventDefault(); // Prevent default to avoid page reload
+      e.stopPropagation(); // Stop event propagation
+    }
+    
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        setDeleteInProgress(true);
+        await dispatch(deleteUserById(userId)).unwrap();
+        // No need to manually filter the array - the reducer will handle this
+      } catch (error) {
+        console.error('Failed to delete user:', error);
+      } finally {
+        setDeleteInProgress(false);
+      }
+    }
   };
 
   const closeAllModals = () => {
@@ -97,6 +97,11 @@ const UserTable = () => {
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleUsersPerPageChange = (e) => {
+    setUsersPerPage(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page when changing items per page
   };
 
   // Add a safety check for users array
@@ -120,6 +125,18 @@ const UserTable = () => {
     if (!b.name) return -1;
     return a.name.localeCompare(b.name);
   });
+
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = sortedUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   const getRoleColor = (role) => {
     switch (role) {
@@ -153,6 +170,7 @@ const UserTable = () => {
           <button
             className={styles.addUserButton}
             onClick={handleCreateUser}
+            disabled={deleteInProgress}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -199,7 +217,7 @@ const UserTable = () => {
               </tr>
             </thead>
             <tbody>
-              {sortedUsers.length === 0 ? (
+              {currentUsers.length === 0 ? (
                 <tr>
                   <td colSpan="4" className={styles.noUsers}>
                     <div className={styles.emptyState}>
@@ -217,8 +235,8 @@ const UserTable = () => {
                   </td>
                 </tr>
               ) : (
-                sortedUsers.map(user => (
-                  <tr key={user._id} className={styles.userRow}>
+                currentUsers.map(user => (
+                  <tr key={user?._id || user.id} className={styles.userRow}>
                     <td className={styles.userName}>{user.name}</td>
                     <td>{user.email}</td>
                     <td>
@@ -229,8 +247,9 @@ const UserTable = () => {
                     <td className={styles.actions}>
                       <button
                         className={`${styles.actionButton} ${styles.editButton}`}
-                        onClick={() => handleEditUser(user)}
+                        onClick={(e) => handleEditUser(user, e)}
                         aria-label="Edit user"
+                        disabled={deleteInProgress}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -239,13 +258,9 @@ const UserTable = () => {
                       </button>
                       <button
                         className={`${styles.actionButton} ${styles.deleteButton}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm('Are you sure you want to delete this user?')) {
-                            handleUserDelete(user._id);
-                          }
-                        }}
+                        onClick={(e) => handleUserDelete(user._id, e)}
                         aria-label="Delete user"
+                        disabled={deleteInProgress}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M3 6h18"></path>
@@ -261,6 +276,83 @@ const UserTable = () => {
               )}
             </tbody>
           </table>
+          
+          {/* Pagination controls */}
+          {sortedUsers.length > 0 && (
+            <div className={styles.paginationContainer}>
+              <div className={styles.paginationInfo}>
+                Showing {indexOfFirstUser + 1}-{Math.min(indexOfLastUser, sortedUsers.length)} of {sortedUsers.length} users
+              </div>
+              
+              <div className={styles.paginationControls}>
+                <button 
+                  className={styles.paginationButton} 
+                  onClick={() => paginate(1)} 
+                  disabled={currentPage === 1}
+                  aria-label="First page"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="11 17 6 12 11 7"></polyline>
+                    <polyline points="18 17 13 12 18 7"></polyline>
+                  </svg>
+                </button>
+                
+                <button 
+                  className={styles.paginationButton} 
+                  onClick={() => paginate(currentPage - 1)} 
+                  disabled={currentPage === 1}
+                  aria-label="Previous page"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                
+                <span className={styles.pageInfo}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                
+                <button 
+                  className={styles.paginationButton} 
+                  onClick={() => paginate(currentPage + 1)} 
+                  disabled={currentPage === totalPages}
+                  aria-label="Next page"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+                
+                <button 
+                  className={styles.paginationButton} 
+                  onClick={() => paginate(totalPages)} 
+                  disabled={currentPage === totalPages}
+                  aria-label="Last page"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="13 17 18 12 13 7"></polyline>
+                    <polyline points="6 17 11 12 6 7"></polyline>
+                  </svg>
+                </button>
+              </div>
+              
+              <div className={styles.perPageControl}>
+                <label htmlFor="usersPerPage">Show:</label>
+                <select
+                  id="usersPerPage"
+                  className={styles.select}
+                  value={usersPerPage}
+                  onChange={handleUsersPerPageChange}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+                <span>per page</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

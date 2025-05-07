@@ -1,6 +1,6 @@
 // components/TaskTable/TaskTable.jsx
 'use client';
-import { useState, useEffect,useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styles from './TaskTable.module.css';
 import TaskCard from '../TaskCard/TaskCard';
@@ -11,6 +11,7 @@ import { fetchCurrentUser } from '../../../store/thunks/userThunk';
 const TaskTable = () => {
   const dispatch = useDispatch();
   const { tasks, isLoading, error } = useSelector((state) => state.task);
+  console.log("tasks:",tasks);
   const currentUser = useSelector((state) => state.user?.currentUser);
 
   const [filter, setFilter] = useState('all');
@@ -20,22 +21,24 @@ const TaskTable = () => {
   const [showTaskDetails, setShowTaskDetails] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState(false);
-
-const tasksInitiallyFetched = useRef(false);
-
-useEffect(() => {
+  const tasksInitiallyFetched = useRef(false);
   
-  if (currentUser && !tasksInitiallyFetched.current) {
-    // Fetch tasks based on user role
-    if (currentUser.role === 'admin' || currentUser.role === 'manager') {
-      dispatch(fetchTasks());
-    } else {
-      // Regular user - only fetch their assigned tasks
-      dispatch(fetchUserTasks(currentUser.data?._id));
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [tasksPerPage, setTasksPerPage] = useState(10);
+
+  useEffect(() => {
+    if (currentUser && !tasksInitiallyFetched.current) {
+      // Fetch tasks based on user role
+      if (currentUser.role === 'admin' || currentUser.role === 'manager') {
+        dispatch(fetchTasks());
+      } else {
+        // Regular user - only fetch their assigned tasks
+        dispatch(fetchUserTasks(currentUser.data?._id));
+      }
+      tasksInitiallyFetched.current = true;
     }
-    tasksInitiallyFetched.current = true;
-  }
-}, [dispatch, currentUser]); // Will only fetch once after currentUser is available
+  }, [dispatch, currentUser]); // Will only fetch once after currentUser is available
 
   const handleTaskUpdate = (updatedTask) => {
     dispatch(updateTaskThunk({ taskId: updatedTask._id, taskData: updatedTask }))
@@ -71,19 +74,22 @@ useEffect(() => {
       });
   };
 
-  const handleTaskClick = (task) => {
+  const handleTaskClick = (task, e) => {
+    if (e) e.preventDefault();
     setSelectedTask(task);
     setShowTaskDetails(true);
   };
 
-  const handleEditTask = (task) => {
+  const handleEditTask = (task, e) => {
+    if (e) e.preventDefault();
     setSelectedTask(task);
     setIsEditingTask(true);
     setShowTaskForm(true);
     setShowTaskDetails(false);
   };
 
-  const handleCreateTask = () => {
+  const handleCreateTask = (e) => {
+    if (e) e.preventDefault();
     setSelectedTask(null);
     setIsEditingTask(false);
     setShowTaskForm(true);
@@ -96,6 +102,7 @@ useEffect(() => {
 
   const handleStatusFilter = (e) => {
     setFilter(e.target.value);
+    setCurrentPage(1); // Reset to first page when filtering
   };
 
   const handleSort = (e) => {
@@ -104,6 +111,12 @@ useEffect(() => {
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  const handleTasksPerPageChange = (e) => {
+    setTasksPerPage(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page when changing items per page
   };
 
   // Add a safety check for tasks
@@ -145,14 +158,38 @@ useEffect(() => {
     }
   });
 
-  const isOverdue = (task) => {
+  // Pagination logic
+  const indexOfLastTask = currentPage * tasksPerPage;
+  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+  const currentTasks = sortedTasks.slice(indexOfFirstTask, indexOfLastTask);
+  const totalPages = Math.ceil(sortedTasks.length / tasksPerPage);
 
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
+  // Go to previous page
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+  
+  // Go to next page
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const isOverdue = (task) => {
     if (task?.status === 'completed') return false;
     const dueDate = new Date(task?.dueDate);
     const today = new Date();
     return dueDate < today;
   };
-
+  
+  
+  
   return (
     <div className={styles.container}>
       <div className={styles.controls}>
@@ -214,6 +251,21 @@ useEffect(() => {
               <option value="title">Title</option>
             </select>
           </div>
+
+          <div className={styles.filterGroup}>
+            <label htmlFor="rowsPerPage">Show:</label>
+            <select
+              id="rowsPerPage"
+              className={styles.select}
+              value={tasksPerPage}
+              onChange={handleTasksPerPageChange}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -256,7 +308,7 @@ useEffect(() => {
                   </td>
                 </tr>
               ) : (
-                sortedTasks.map(task => (
+                currentTasks.map(task => (                  
                   <tr
                     key={task._id}
                     className={`${styles.taskRow} ${isOverdue(task) ? styles.overdue : ''}`}
@@ -279,16 +331,15 @@ useEffect(() => {
                       {new Date(task?.dueDate).toLocaleDateString()}
                       {isOverdue(task) && <span className={styles.overdueTag}>Overdue</span>}
                     </td>
-                    <td>{task?.assignedTo?.name || 'Unassigned'}</td>
+                    <td>{task?.assignedTo?.name || task.assignedTo || 'Unassigned'}</td>
                     <td className={styles.actions}>
                       <button
                         className={`${styles.actionButton} ${styles.viewButton}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleTaskClick(task);
+                          handleTaskClick(task, e);
                         }}
-                        aria-label="View task details"
-                      >
+                        aria-label="View task details">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                           <circle cx="12" cy="12" r="3"></circle>
@@ -298,7 +349,7 @@ useEffect(() => {
                         className={`${styles.actionButton} ${styles.editButton}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleEditTask(task);
+                          handleEditTask(task, e);
                         }}
                         aria-label="Edit task"
                       >
@@ -326,13 +377,80 @@ useEffect(() => {
                           <line x1="14" y1="11" x2="14" y2="17"></line>
                         </svg>
                       </button>
-
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+          
+          {/* Pagination Component */}
+          {sortedTasks.length > 0 && (
+            <div className={styles.pagination}>
+              <div className={styles.paginationInfo}>
+                Showing {indexOfFirstTask + 1} to {Math.min(indexOfLastTask, sortedTasks.length)} of {sortedTasks.length} tasks
+              </div>
+              <div className={styles.paginationControls}>
+                <button 
+                  onClick={goToPreviousPage} 
+                  disabled={currentPage === 1}
+                  className={`${styles.paginationButton} ${currentPage === 1 ? styles.disabled : ''}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                
+                <div className={styles.pageNumbers}>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(pageNum => {
+                      // Show current page, first and last pages, and pages close to current page
+                      return (
+                        pageNum === 1 || 
+                        pageNum === totalPages || 
+                        Math.abs(pageNum - currentPage) <= 1
+                      );
+                    })
+                    .map((pageNum, index, array) => {
+                      // Add ellipsis when there are gaps
+                      if (index > 0 && pageNum - array[index - 1] > 1) {
+                        return (
+                          <React.Fragment key={`ellipsis-${pageNum}`}>
+                            <span className={styles.ellipsis}>...</span>
+                            <button
+                              key={pageNum}
+                              onClick={() => paginate(pageNum)}
+                              className={`${styles.pageNumber} ${currentPage === pageNum ? styles.activePage : ''}`}
+                            >
+                              {pageNum}
+                            </button>
+                          </React.Fragment>
+                        );
+                      }
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => paginate(pageNum)}
+                          className={`${styles.pageNumber} ${currentPage === pageNum ? styles.activePage : ''}`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                </div>
+                
+                <button 
+                  onClick={goToNextPage} 
+                  disabled={currentPage >= totalPages}
+                  className={`${styles.paginationButton} ${currentPage >= totalPages ? styles.disabled : ''}`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -343,8 +461,7 @@ useEffect(() => {
             <button
               className={styles.closeButton}
               onClick={closeAllModals}
-              aria-label="Close modal"
-            >
+              aria-label="Close modal">
               &times;
             </button>
             <TaskCard
