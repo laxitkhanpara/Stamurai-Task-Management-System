@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import styles from './page.module.css';
 import Link from 'next/link';
-
+import Image from 'next/image';
 const images = [
   '/embrace-tough-situations.svg',
   '/learn-how-to-fight-stuttering.svg',
@@ -47,7 +47,7 @@ export default function Home() {
                 Streamline your workflow, boost productivity, and organize your team with our intuitive task management platform
               </p>
               <div className={styles.quote}>
-                <blockquote className={styles.quoteText}>"Productivity is never an accident. It is always the result of a commitment to excellence, intelligent planning, and focused effort."</blockquote>
+                <p className={styles.quoteText}>"Productivity is never an accident. It is always the result of a commitment to excellence, intelligent planning, and focused effort."</p>
                 <cite className={styles.quoteCite}>— Paul J. Meyer</cite>
               </div>
               <div className={styles.buttons}>
@@ -61,7 +61,9 @@ export default function Home() {
             </div>
             <div className={styles.right}>
               <div className={styles.imageContainer}>
-                <img
+                <Image 
+                  width={20000}
+                  height={20000}
                   key={images[current]}
                   src={images[current]}
                   alt="Task management illustration"
