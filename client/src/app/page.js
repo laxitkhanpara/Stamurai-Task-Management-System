@@ -47,8 +47,8 @@ export default function Home() {
                 Streamline your workflow, boost productivity, and organize your team with our intuitive task management platform
               </p>
               <div className={styles.quote}>
-                <p className={styles.quoteText}>"Productivity is never an accident. It is always the result of a commitment to excellence, intelligent planning, and focused effort."</p>
-                <cite className={styles.quoteCite}>— Paul J. Meyer</cite>
+              <p className={styles.quoteText}>&quot;Productivity is never an accident. It is always the result of a commitment to excellence, intelligent planning, and focused effort.&quot;</p>
+              <cite className={styles.quoteCite}>— Paul J. Meyer</cite>
               </div>
               <div className={styles.buttons}>
                 <Link href="/auth/register" className={styles.primaryButton}>

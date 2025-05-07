@@ -212,8 +212,8 @@
 }
 
 .animatedImage {
-  max-width: 100%;
-  height: auto;
+  max-width: 100% !important;
+  height: auto !important;
   max-height: 350px;
   transition: var(--transition);
 }
