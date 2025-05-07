@@ -1,5 +1,3 @@
-// Updated app.js with improved timeout and error handling
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -32,7 +30,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Basic health check route
 app.get('/', (req, res) => {
   res.send('API is running...');
 });

@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
-
+/**
+ * @typedef {Object} Task
+ * @description Task schema representing a task in the system.
+ * @author Laxit Khanpara
+ */
 const TaskSchema = new mongoose.Schema({
   title: {
     type: String,

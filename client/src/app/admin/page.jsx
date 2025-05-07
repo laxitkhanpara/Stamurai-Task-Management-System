@@ -19,11 +19,10 @@ import styles from './Dashboard.module.css';
 export default function TaskDashboard() {
   const dispatch = useDispatch();
   const { dashboardStats, isLoading, error } = useSelector((state) => state.task);
-console.log("dashboardStats", dashboardStats);
 
   useEffect(() => {
     // Fetch dashboard stats when component mounts
-    if(!dashboardStats){
+    if (!dashboardStats) {
       dispatch(fetchDashboardStats());
     }
 
@@ -41,7 +40,13 @@ console.log("dashboardStats", dashboardStats);
   };
 
   if (isLoading) {
-    return <div className={styles.loadingContainer}>Loading dashboard data...</div>;
+    return (
+      <div className={styles.loading}>
+      <div className={styles.loadingSpinner}></div>
+      <p>Loading Data...</p>
+    </div>
+    )
+
   }
 
   if (error) {

@@ -9,6 +9,7 @@ const initialState = {
   lastFetchTime: null
 };
 
+/** @type {UserState} */
 const userSlice = createSlice({
   name: "user",
   initialState,

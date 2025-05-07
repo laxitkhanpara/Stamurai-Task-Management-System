@@ -21,7 +21,6 @@ const TaskTable = () => {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [isEditingTask, setIsEditingTask] = useState(false);
 
-// Option 2: Use a ref to track if we've already fetched
 const tasksInitiallyFetched = useRef(false);
 
 useEffect(() => {

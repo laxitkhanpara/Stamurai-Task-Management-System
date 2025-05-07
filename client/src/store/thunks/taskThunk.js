@@ -48,7 +48,7 @@ export const fetchDashboardStats = createAsyncThunk('tasks/fetchDashboardStats',
 export const createNewTask = createAsyncThunk('tasks/createNewTask', async (taskData, thunkApi) => {
   try {
     const response = await createTask(taskData);
-    return response.data.content;
+    return response.data.data;
   }
   catch (error) {
     return thunkApi.rejectWithValue(error.response.data);

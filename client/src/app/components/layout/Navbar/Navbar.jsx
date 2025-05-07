@@ -21,45 +21,105 @@ export default function Navbar({ toggleSidebar, toggleTheme, theme, user, handle
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+
   const notificationsRef = useRef(null);
   const profileMenuRef = useRef(null);
+  const socketRef = useRef(null);
+  const notificationListenerRef = useRef(null);
 
   const token = Cookies.get("token");
 
   // Initialize socket connection and fetch notifications
   useEffect(() => {
-    console.log(user, token);
-    
-    if (!user || !token) return;
+    if (!user || !token) {
+      setSocketConnected(false);
+      return;
+    }
 
     // Initialize socket
-    initializeSocket(token);
+    const socket = initializeSocket(token);
+    socketRef.current = socket;
 
-    // Subscribe to new notifications
-    const unsubscribe = subscribeToNotifications((notification) => {
-      console.log('New notification received:', notification);
+    if (socket) {
+      // Setup socket connection status monitoring
+      const onConnect = () => {
+        console.log('Socket connected in Navbar');
+        setSocketConnected(true);
+        // Fetch notifications after successful connection
+        getNotifications();
+      };
 
-      // Add new notification to the state
-      setNotifications(prev => {
-        // Check if this notification already exists to prevent duplicates
-        const exists = prev.some(n => n._id === notification._id);
-        if (exists) return prev;
-        return [notification, ...prev];
+      const onDisconnect = () => {
+        console.log('Socket disconnected in Navbar');
+        setSocketConnected(false);
+      };
+
+      socket.on('connect', onConnect);
+      socket.on('disconnect', onDisconnect);
+      
+      // Check if already connected
+      if (socket.connected) {
+        setSocketConnected(true);
+        getNotifications();
+      }
+
+      // Cleanup listeners on unmount
+      return () => {
+        socket.off('connect', onConnect);
+        socket.off('disconnect', onDisconnect);
+        if (notificationListenerRef.current) {
+          notificationListenerRef.current();
+          notificationListenerRef.current = null;
+        }
+        disconnectSocket();
+      };
+    }
+  }, [user, token]);
+
+  // Subscribe to notifications when socket is connected
+  useEffect(() => {
+    if (socketConnected && socketRef.current) {
+      console.log('Setting up notification subscription');
+      
+      // Cleanup previous subscription if exists
+      if (notificationListenerRef.current) {
+        notificationListenerRef.current();
+      }
+      
+      // Create new subscription
+      notificationListenerRef.current = subscribeToNotifications((notification) => {
+        console.log('New notification received in Navbar:', notification);
+
+        if (!notification || !notification._id) {
+          console.error('Invalid notification received:', notification);
+          return;
+        }
+
+        // Add new notification to the state
+        setNotifications(prev => {
+          // Check if this notification already exists to prevent duplicates
+          const exists = prev.some(n => n._id === notification._id);
+          if (exists) return prev;
+          return [notification, ...prev];
+        });
+
+        // Update unread count
+        setUnreadCount(prev => prev + 1);
       });
 
-      // Update unread count
-      setUnreadCount(prev => prev + 1);
-    });
+      // Keep socket alive with ping
+      const pingInterval = setInterval(() => {
+        if (socketRef.current) {
+          socketRef.current.emit('ping');
+        }
+      }, 30000); // every 30 seconds
 
-    // Fetch existing notifications
-    getNotifications();
-
-    // Cleanup on unmount
-    return () => {
-      unsubscribe();
-      disconnectSocket();
-    };
-  }, [user, token]);
+      return () => {
+        clearInterval(pingInterval);
+      };
+    }
+  }, [socketConnected]);
 
   // Fetch existing notifications
   const getNotifications = async () => {
@@ -80,11 +140,13 @@ export default function Navbar({ toggleSidebar, toggleTheme, theme, user, handle
         const unreadNotifications = result.data.filter(n => !n.read);
         setUnreadCount(unreadNotifications.length);
       } else {
-        setError(result.error || 'Failed to fetch notifications');
-        console.error('Failed to fetch notifications:', result.error);
+        const errorMessage = result.error || 'Failed to fetch notifications';
+        setError(errorMessage);
+        console.error('Failed to fetch notifications:', errorMessage);
       }
     } catch (error) {
-      setError('Error fetching notifications');
+      const errorMessage = error.message || 'Error fetching notifications';
+      setError(errorMessage);
       console.error('Error fetching notifications:', error);
     } finally {
       setLoading(false);
@@ -93,6 +155,11 @@ export default function Navbar({ toggleSidebar, toggleTheme, theme, user, handle
 
   // Mark notification as read
   const handleNotificationClick = async (notificationId) => {
+    if (!token || !notificationId) {
+      console.error('Missing token or notification ID');
+      return;
+    }
+
     try {
       const result = await markNotificationAsRead(notificationId, token);
 
@@ -118,6 +185,11 @@ export default function Navbar({ toggleSidebar, toggleTheme, theme, user, handle
 
   // Mark all notifications as read
   const markAllAsRead = async () => {
+    if (!token) {
+      console.error('No token available');
+      return;
+    }
+
     try {
       const result = await markAllNotificationsAsRead(token);
 
@@ -172,17 +244,32 @@ export default function Navbar({ toggleSidebar, toggleTheme, theme, user, handle
     }
   };
 
+  // Refresh notifications on visibility change (when user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && token) {
+        getNotifications();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [token]);
+
   return (
     <nav className={styles.navbar}>
-      <div className={styles.left}>
+       <div className={styles.left}>
         <button className={styles.menuButton} onClick={toggleSidebar} aria-label="Toggle sidebar">
           <Menu size={20} />
         </button>
         <Link href="/" className={styles.brand}>
-          <span className={styles.logo}>TaskFlow</span>
+          {/* Logo as CSS background */}
+          <div className={styles.logoImage}></div>
+          <span className={styles.logo}></span>
         </Link>
       </div>
-
       <div className={styles.right}>
         <button 
           className={styles.iconButton} 
@@ -206,7 +293,14 @@ export default function Navbar({ toggleSidebar, toggleTheme, theme, user, handle
 
           {showNotifications && (
             <div className={styles.dropdown}>
-              <h3 className={styles.dropdownTitle}>Notifications</h3>
+              <h3 className={styles.dropdownTitle}>
+                Notifications
+                {!socketConnected && (
+                  <span className={styles.connectionStatus}>
+                    (offline)
+                  </span>
+                )}
+              </h3>
               
               {loading ? (
                 <p className={styles.loadingMessage}>Loading notifications...</p>

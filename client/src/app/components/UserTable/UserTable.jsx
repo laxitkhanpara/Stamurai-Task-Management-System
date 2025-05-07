@@ -49,7 +49,7 @@ const UserTable = () => {
 
   const handleUserUpdate = (updatedUser) => {
     console.log("handleUserUpdate:", updatedUser);
-    
+
     dispatch(updateUserById({ id: updatedUser._id, userData: updatedUser }))
       .unwrap()
       .then(() => {

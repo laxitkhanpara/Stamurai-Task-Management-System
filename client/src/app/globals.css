@@ -10,6 +10,7 @@
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --error-color: #ef4444;
+  --logo:url('./../../public/logo.svg');
 }
 
 [data-theme="dark"] {
@@ -20,9 +21,10 @@
   --text-primary: #f3f4f6;
   --text-secondary: #9ca3af;
   --primary-color: #818cf8;
-  --success-color: #34d399;
+  --s--logouccess-color: #34d399;
   --warning-color: #fbbf24;
   --error-color: #f87171;
+  --logo:url('./../../public/logo-dark.svg');
 }
 
 * {

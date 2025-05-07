@@ -1,5 +1,25 @@
-/* components/layout/Navbar.module.css */
-/* Add these styles to your existing Navbar.module.css file */
+.brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 8px; /* Space between logo and text */
+  height: 40px; /* Match the height of the logo container */
+}
+
+.logoImage {
+  height: 40px;
+  width: 120px; /* Width is greater than height for a wider logo */
+  background-image: var(--logo);
+  background-size: contain; /* Ensures the entire logo fits within the container */
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
 
 .notificationContainer {
   position: relative;
@@ -425,4 +445,45 @@
   .dropdown {
     right: -16px;
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .userName {
+    display: none;
+  }
+  
+  .dropdown {
+    right: -16px;
+    width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dropdown {
+    width: 280px;
+    right: -120px;
+  }
+  
+  /* Make logo responsive on small screens */
+  .logoImage {
+    width: 100px; /* Slightly smaller on mobile */
+    height: 35px;
+  }
+  
+  /* Optional: Hide the text logo on very small screens if needed */
+  /* Uncomment the following if you want to hide text on mobile
+  .logo {
+    display: none;
+  }
+  */
 }

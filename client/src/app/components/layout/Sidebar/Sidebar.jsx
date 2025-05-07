@@ -80,7 +80,7 @@ export default function Sidebar({ isOpen, user, toggleSidebar }) {
       )}
       <nav className={`${styles.sidebar} ${isOpen ? styles.open : styles.closed}`}>
         <div className={styles.sidebarHeader}>
-          {isOpen && <h2 className={styles.sidebarTitle}>TaskFlow</h2>}
+          {isOpen && <h2 className={styles.sidebarTitle}>Stamurai</h2>}
           <button className={styles.toggleButton} onClick={toggleSidebar} aria-label="Toggle sidebar">
             {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>

@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { login, register } from "../thunks/authThunk";
 import Cookies from "js-cookie";
 
+/** @type {AuthState} */
 const authSlice = createSlice({
   name: "auth",
   initialState: { user: [], token: null, loading: false, error: null },

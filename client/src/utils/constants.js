@@ -4,8 +4,8 @@
 
 // Request status enum for tracking API call states
 
-// export const  API_BASE_URL= "https://stamurai-task-management-system-w5a1.onrender.com/api/";
-export const API_BASE_URL = "http://localhost:5000/api/";
+export const  API_BASE_URL= "https://stamurai-task-management-system-w5a1.onrender.com/api/";
+// export const API_BASE_URL = "http://localhost:5000/api/";
 
 export const AUTH_ENDPOINTS = {
   LOGIN: `/auth/login`,
@@ -13,10 +13,6 @@ export const AUTH_ENDPOINTS = {
   REFRESH_TOKEN: `/auth/refresh`,
 };
 
-export const PRODUCT_ENDPOINTS = {
-  GET_ALL: `${API_BASE_URL}/products`,
-  UPLOAD: `${API_BASE_URL}/products/upload`,
-};
 
 export const RequestStatus = {
   IDLE: 'idle',      // No request has been made yet
@@ -39,7 +35,7 @@ export const API_ENDPOINTS = {
   GET_USER_TASKS:'/tasks/user/',
   UPDATE_TASK_STATUS:'/tasks/',
   GETDASHBOARD_STATS:'/tasks/dashboard',
-
+  GET_USER:'/auth/users'
 };
 
 // Pagination defaults
@@ -48,5 +44,4 @@ export const PAGINATION = {
   DEFAULT_LIMIT: 10,
 };
 
-// Toast notification duration (ms)
 export const TOAST_DURATION = 3000;

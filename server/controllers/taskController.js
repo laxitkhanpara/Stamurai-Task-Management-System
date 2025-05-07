@@ -5,9 +5,11 @@ const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 
 
-// @desc    Create new task
-// @route   POST /api/tasks
-// @access  Private
+/** 
+* @desc    Create new task
+* @route   POST /api/tasks
+* @access  Private
+**/
 exports.createTask = async (req, res) => {
   try {
     // Check for validation errors
@@ -70,11 +72,11 @@ exports.createTask = async (req, res) => {
   }
 };
 
-// Other controller methods...
-
-// @desc    Update task
-// @route   PUT /api/tasks/:id
-// @access  Private
+/** 
+* @desc    Update task
+* @route   PUT /api/tasks/:id
+* @access  Private
+**/
 exports.updateTask = async (req, res) => {
   try {
     let task = await Task.findById(req.params.id);
@@ -161,9 +163,11 @@ exports.updateTask = async (req, res) => {
   }
 };
 
-// @desc    Get all tasks
-// @route   GET /api/tasks
-// @access  Private
+/** 
+* @desc    Get all tasks
+* @route   GET /api/tasks
+* @access  Private
+**/
 exports.getTasks = async (req, res) => {
 
 
@@ -266,9 +270,11 @@ exports.getTasks = async (req, res) => {
   }
 };
 
-// @desc    Get single task
-// @route   GET /api/tasks/:id
-// @access  Private
+/** 
+* @desc    Get single task
+* @route   GET /api/tasks/:id
+* @access  Private
+**/
 exports.getTask = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id).populate([
@@ -305,10 +311,11 @@ exports.getTask = async (req, res) => {
     });
   }
 };
-
-// @desc    Delete task
-// @route   DELETE /api/tasks/:id
-// @access  Private
+/** 
+* @desc    Delete task
+* @route   DELETE /api/tasks/:id
+* @access  Private
+**/
 exports.deleteTask = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
@@ -347,9 +354,11 @@ exports.deleteTask = async (req, res) => {
   }
 };
 
-// @desc    Get tasks for a specific user
-// @route   GET /api/tasks/user/:userId
-// @access  Private (Admin and Manager Only)
+/** 
+* @desc    Get tasks for a specific user
+* @route   GET /api/tasks/user/:userId
+* @access  Private (Admin and Manager Only)
+**/
 exports.getUserTasks = async (req, res) => {
   try {
     console.log("req.params.userId", req.params.userId, req.user.id);
@@ -473,9 +482,11 @@ exports.getUserTasks = async (req, res) => {
   }
 };
 
-// @desc    Update task status
-// @route   PATCH /api/tasks/:id/status
-// @access  Private
+/** 
+* @desc    Update task status
+* @route   PATCH /api/tasks/:id/status
+* @access  Private
+**/
 exports.updateTaskStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -557,9 +568,11 @@ exports.updateTaskStatus = async (req, res) => {
   }
 };
 
-// @desc    Get dashboard stats
-// @route   GET /api/tasks/dashboard
-// @access  Private
+/** 
+* @desc    Get dashboard stats
+* @route   GET /api/tasks/dashboard
+* @access  Private
+**/
 exports.getDashboardStats = async (req, res) => {
   try {
     // Get total tasks count

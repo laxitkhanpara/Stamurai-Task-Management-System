@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchTasks, fetchUserTasks, updateTaskThunk, deleteTaskThunk,fetchDashboardStats } from "../thunks/taskThunk";
+import { createNewTask,fetchTasks, fetchUserTasks, updateTaskThunk, deleteTaskThunk, fetchDashboardStats } from "../thunks/taskThunk";
 
 const initialState = {
   tasks: [],
@@ -7,7 +7,9 @@ const initialState = {
   isLoading: false,
   error: null
 };
-
+/**
+ *  @type {TaskState}
+ *  */
 const taskSlice = createSlice({
   name: "task",
   initialState,
@@ -52,7 +54,7 @@ const taskSlice = createSlice({
       .addCase(updateTaskThunk.fulfilled, (state, action) => {
         state.isLoading = false;
         console.log("action.payload", action.payload);
-        
+
         if (action.payload && action.payload._id) {
           const taskIndex = state.tasks.findIndex(task => task._id === action.payload._id);
           if (taskIndex !== -1) {
@@ -63,6 +65,22 @@ const taskSlice = createSlice({
           }
         }
       })
+      .addCase(createNewTask.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createNewTask.fulfilled, (state, action) => {  
+        state.isLoading = false;
+        console.log("action.payload", action.payload);
+        if (action.payload && action.payload._id) {
+          state.tasks.push(action.payload);
+          state.selectedTask = action.payload;
+        }
+      })
+      .addCase(createNewTask.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })  
       .addCase(updateTaskThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
@@ -84,16 +102,16 @@ const taskSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      .addCase(fetchDashboardStats.pending , (state,action ) => {
+      .addCase(fetchDashboardStats.pending, (state, action) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchDashboardStats.fulfilled, (state,action) => {
+      .addCase(fetchDashboardStats.fulfilled, (state, action) => {
         state.isLoading = false;
         console.log("action.payload", action.payload);
         state.dashboardStats = action.payload;
       })
-      .addCase(fetchDashboardStats.rejected, (state,action) => {
+      .addCase(fetchDashboardStats.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })

@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 
+/**
+ * @typedef {Object} Notification
+ * @description Notification schema representing a notification in the system.
+ * @author Laxit Khanpara
+ */
 const NotificationSchema = new mongoose.Schema({
   recipient: {
     type: mongoose.Schema.ObjectId,
