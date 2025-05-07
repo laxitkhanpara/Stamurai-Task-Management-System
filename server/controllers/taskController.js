@@ -59,9 +59,14 @@ exports.createTask = async (req, res) => {
       }
     }
 
+    // Populate the user details for assignedTo and createdBy fields
+    const populatedTask = await Task.findById(task._id)
+      .populate('assignedTo', 'name email role')
+      .populate('createdBy', 'name email role');
+
     res.status(201).json({
       success: true,
-      data: task
+      data: populatedTask
     });
   } catch (error) {
     console.error(`Error in createTask: ${error.message}`);

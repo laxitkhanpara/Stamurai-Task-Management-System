@@ -43,12 +43,12 @@ export default function Sidebar({ isOpen, user, toggleSidebar }) {
 
     // Additional items based on user role
     const roleSpecificItems = [];
-    if (currentUserRole === 'admin' || currentUserRole === 'manager') {
+    if (currentUserRole === 'admin') {
       roleSpecificItems.push({
         name: 'Users',
         icon: <Users size={20} />,
         href: '/admin/users',
-        allowedRoles: ['manager', 'admin']
+        allowedRoles: ['admin']
       });
     }
 

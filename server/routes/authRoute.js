@@ -81,7 +81,7 @@ router.put(
 
 // Admin user management routes - Admin access only
 router.route("/users")
-  .get(protect, authorize('admin'), getUsers)
+  .get(protect, authorize('admin','manager'), getUsers)
   .post(
     [protect, authorize('admin'), createUserValidation],
     createUser

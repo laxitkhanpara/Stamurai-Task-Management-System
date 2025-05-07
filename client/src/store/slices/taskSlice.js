@@ -69,6 +69,7 @@ const taskSlice = createSlice({
       })
       .addCase(createNewTask.fulfilled, (state, action) => {  
         console.log("action.payload", action.payload);
+        
         if (action.payload && action.payload._id) {
           state.tasks.push(action.payload);
           state.selectedTask = action.payload;

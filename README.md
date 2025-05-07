@@ -8,10 +8,13 @@ A robust, full-stack task management application designed for small teams to col
 
 **[View Live Demo](https://stamurai-tms.onrender.com/) | [Explore Repository](https://github.com/laxitkhanpara/Stamurai-Task-Management-System)**
 
-<img src="./client/public/Dashboard.png" alt="Stamurai TMS Dashboard Screenshot" width="200" />
-<img src="./client/public/Dashboard.png" alt="Stamurai TMS Dashboard Screenshot" width="200" />
-<img src="./client/public/Dashboard.png" alt="Stamurai TMS Dashboard Screenshot" width="200" />
-<img src="./client/public/Dashboard.png" alt="Stamurai TMS Dashboard Screenshot" width="200" />
+<p align="center">
+  <img src="./client/public/Dashboard.png" alt="Screenshot" width="300"/>
+  <img src="./client/public/Dashboard.png" alt="Screenshot" width="300"/>
+  <img src="./client/public/Dashboard.png" alt="Screenshot" width="300"/>
+  <img src="./client/public/Dashboard.png" alt="Screenshot" width="300"/>
+</p>
+
 
 ## ✨ Features
 
