@@ -6,7 +6,7 @@
 
 A robust, full-stack task management application designed for small teams to collaborate efficiently. Built with modern technologies, Stamurai TMS streamlines task workflows with intuitive interfaces and powerful features.
 
-**[View Live Demo](https://stamurai-tms.onrender.com/) | [Explore Repository](https://github.com/laxitkhanpara/Stamurai-Task-Management-System)**
+**[View Live Demo](https://stamurai-tms.vercel.app/) | [Explore Repository](https://github.com/laxitkhanpara/Stamurai-Task-Management-System)**
 
 <p align="center">
 <img src="./client/public/Landingpage.png" alt="Screenshot" width="300"/>

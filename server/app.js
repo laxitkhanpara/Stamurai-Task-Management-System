@@ -24,7 +24,8 @@ const notificationRoutes = require('./routes/notificationRoute.js');
 // CORS Configuration
 const allowedOrigins = [
   'http://localhost:3000',              
-  'https://stamurai-tms.onrender.com',  
+  'https://stamurai-tms.onrender.com',
+  'https://stamurai-tms.vercel.app'  
 ];
 
 // CORS middleware with proper configuration
